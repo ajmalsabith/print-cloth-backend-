@@ -6,6 +6,7 @@ const { notifyUserBanned, notifyUserUnbanned } = require('../utils/socket');
 class AdminService {
   static async login(credentials) {
     try {
+
       const { email, password } = credentials;
 
       const admin = await User.findByEmail(email);

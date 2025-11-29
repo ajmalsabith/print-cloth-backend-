@@ -1,8 +1,8 @@
 module.exports = {
-  PORT: process.env.PORT || 5000,
+  PORT: process.env.PORT || 5002,
   NODE_ENV: process.env.NODE_ENV || 'development',
   
-  MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/mern_project',
+  MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/tshirt',
   
   JWT: {
     USER_SECRET: process.env.JWT_USER_SECRET || 'your_super_secret_user_jwt_key',
@@ -20,7 +20,7 @@ module.exports = {
   },
   
   CORS: {
-    ORIGIN: process.env.FRONTEND_URL || 'http://localhost:3000',
+    ORIGIN: process.env.FRONTEND_URL || 'http://localhost:8080',
     CREDENTIALS: true,
     METHODS: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     ALLOWED_HEADERS: ['Content-Type', 'Authorization', 'X-Requested-With']

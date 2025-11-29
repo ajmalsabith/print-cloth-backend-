@@ -1,13 +1,15 @@
 const User = require('../models/User');
 const { generateAdminToken } = require('../utils/jwt');
 const { sendSuccess, sendError, sendValidationError } = require('../utils/response');
-const { adminLoginValidation, statusUpdateValidation } = require('../utils/validation');
+const { adminLoginValidation, statusUpdateValidation, addUserValidation } = require('../utils/validation');
 const logger = require('../utils/logger');
 const { notifyUserBanned, notifyUserUnbanned } = require('../utils/socket');
+
 
 const adminLogin = async (req, res) => {
   try {
     const { error, value } = adminLoginValidation.validate(req.body);
+
     if (error) {
       return sendValidationError(res, { error });
     }
@@ -15,6 +17,7 @@ const adminLogin = async (req, res) => {
     const { email, password } = value;
 
     const admin = await User.findByEmail(email);
+
     if (!admin || admin.role !== 'admin') {
       return sendError(res, 'Invalid admin credentials', 401);
     }
@@ -53,7 +56,7 @@ const getAllUsers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-
+    
     const users = await User.find({})
       .select('-password')
       .sort({ createdAt: -1 })
@@ -81,6 +84,44 @@ const getAllUsers = async (req, res) => {
     sendError(res, 'Failed to retrieve users', 500);
   }
 };
+
+const addUser = async (req, res) => {
+  try {
+
+    const { error, value } = addUserValidation.validate(req.body)
+
+    if (error) {
+      throw {
+        name: 'ValidationError',
+        error: error.details.message
+      }
+    }
+
+    const { name, email, role } = req.body
+    
+    const isUserExist = await User.findByEmail(email)
+
+    if (isUserExist) {
+      sendError(res, 'User with this email is already exist', 409)
+    }
+
+    const user = new User({
+      name,
+      email,
+      role
+    })
+
+    await user.save()
+
+    sendSuccess(res, 'User added successfully', {
+      user: user.getPublicProfile()
+    })
+
+  } catch (error) {
+    logger.error('Add user error:', error);
+    sendError(res, 'Failed to add user', 400);
+  }
+}
 
 const updateUserStatus = async (req, res) => {
   try {
@@ -353,6 +394,7 @@ const deleteUser = async (req, res) => {
 module.exports = {
   adminLogin,
   getAllUsers,
+  addUser,
   getUserById,
   updateUserStatus,
   banUser,

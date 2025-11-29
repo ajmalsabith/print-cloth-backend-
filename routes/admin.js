@@ -2,6 +2,7 @@ const express = require('express');
 const {
   adminLogin,
   getAllUsers,
+  addUser,
   getUserById,
   updateUserStatus,
   banUser,
@@ -25,5 +26,6 @@ router.post('/users/:id/unban', authenticateAdmin, unbanUser);
 router.post('/users/:id/force-logout', authenticateAdmin, forceLogoutUser);
 router.patch('/user/:id/status', authenticateAdmin, updateUserStatus);
 router.get('/stats', authenticateAdmin, getDashboardStats);
+router.post('/addUser', authenticateAdmin, addUser);
 
 module.exports = router;

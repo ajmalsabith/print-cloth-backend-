@@ -6,7 +6,7 @@ const commonPatterns = {
   password: Joi.string().min(8).max(128).required(),
   objectId: Joi.string().regex(/^[0-9a-fA-F]{24}$/),
   status: Joi.string().valid('active', 'banned', 'inactive'),
-  role: Joi.string().valid('user', 'admin')
+  role: Joi.string().valid('user', 'admin', 'designer', 'customer')
 };
 
 const customMessages = {
@@ -86,6 +86,11 @@ const paginationValidation = Joi.object({
   role: commonPatterns.role.optional()
 });
 
+const addUserValidation = Joi.object({
+  name: commonPatterns.name.messages(customMessages),
+  email: commonPatterns.email.messages(customMessages),
+  role: commonPatterns.role.messages(customMessages)
+})
 
 
 const ValidationHelpers = {
@@ -121,5 +126,6 @@ module.exports = {
   ValidationHelpers,
   commonPatterns,
   customMessages,
-  strongPasswordValidation
+  strongPasswordValidation,
+  addUserValidation
 };
