@@ -14,6 +14,9 @@ const {
 } = require('../controllers/adminController');
 const { authenticateAdmin } = require('../middlewares/auth');
 
+const productCtrl = require('../controllers/productController')
+const stockCtrl = require('../controllers/stockController')
+const categoryCtrl = require('../controllers/categoryController')
 const router = express.Router();
 
 router.post('/login', adminLogin);
@@ -27,5 +30,42 @@ router.post('/users/:id/force-logout', authenticateAdmin, forceLogoutUser);
 router.patch('/user/:id/status', authenticateAdmin, updateUserStatus);
 router.get('/stats', authenticateAdmin, getDashboardStats);
 router.post('/addUser', authenticateAdmin, addUser);
+
+
+
+// products 
+
+router.post("/product", productCtrl.createProduct);
+router.get("/product", productCtrl.getAllProducts);
+router.get("/product/:id", productCtrl.getProductById);
+router.put("/product/:id", productCtrl.updateProduct);
+router.delete("/product/:id", productCtrl.deleteProduct);
+
+router.put("/product/deactivate/:id", productCtrl.deactivateProduct);
+router.put("/product/activate/:id", productCtrl.activateProduct);
+
+
+// category 
+
+router.post("/category", categoryCtrl.createCategory);
+router.get("/category", categoryCtrl.getAllCategories);
+router.get("/category/:id", categoryCtrl.getCategoryById);
+router.put("/category/:id", categoryCtrl.updateCategory);
+router.delete("/category/:id", categoryCtrl.deleteCategory);
+
+router.put("/category/deactivate/:id", categoryCtrl.deactivateCategory);
+router.put("/category/activate/:id", categoryCtrl.activateCategory);
+
+
+// stock 
+
+router.post("/stock", stockCtrl.createStock);
+router.get("/stock", stockCtrl.getAllStock);
+router.get("/stock/:id", stockCtrl.getStockById);
+router.put("/stock/:id", stockCtrl.updateStock);
+router.delete("/stock/:id", stockCtrl.deleteStock);
+
+router.put("/stock/deactivate/:id", stockCtrl.deactivateStock);
+router.put("/stock/activate/:id", stockCtrl.activateStock);
 
 module.exports = router;

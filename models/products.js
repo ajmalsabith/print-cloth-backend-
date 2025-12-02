@@ -30,7 +30,10 @@ const ProductSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Stock"
       }
-    ]
+    ],
+
+    isActive: { type: Boolean, default: true }
+
   },
   { timestamps: true }
 );
