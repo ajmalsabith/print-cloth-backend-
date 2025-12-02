@@ -89,7 +89,6 @@ const paginationValidation = Joi.object({
 const addUserValidation = Joi.object({
   name: commonPatterns.name.messages(customMessages),
   email: commonPatterns.email.messages(customMessages),
-  role: commonPatterns.role.messages(customMessages)
 })
 
 

@@ -53,11 +53,23 @@ const adminLogin = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
+
+    const { search, status, role } = req.query
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    
-    const users = await User.find({})
+    const filter = {}
+
+    search ?
+      filter.$or = [
+      {name: {$regex: search, $options: 'i'}},
+      {email: {$regex: search, $options: 'i'}}
+       ] : null
+
+    status ? filter.status = status : null
+    role ? filter.role = role : null
+
+    const users = await User.find(filter)
       .select('-password')
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -67,6 +79,8 @@ const getAllUsers = async (req, res) => {
     const totalPages = Math.ceil(totalUsers / limit);
 
     logger.info(`Admin ${req.admin.email} fetched users list (page: ${page})`);
+
+    console.log('users:', users)
 
     sendSuccess(res, 'Users retrieved successfully', {
       users,
@@ -97,18 +111,17 @@ const addUser = async (req, res) => {
       }
     }
 
-    const { name, email, role } = req.body
+    const { name, email } = req.body
     
     const isUserExist = await User.findByEmail(email)
 
     if (isUserExist) {
-      sendError(res, 'User with this email is already exist', 409)
+      return sendError(res, 'User with this email is already exist', 409)
     }
 
     const user = new User({
       name,
       email,
-      role
     })
 
     await user.save()
@@ -119,7 +132,7 @@ const addUser = async (req, res) => {
 
   } catch (error) {
     logger.error('Add user error:', error);
-    sendError(res, 'Failed to add user', 400);
+    throw error
   }
 }
 
