@@ -20,7 +20,8 @@ const getAllCategories = async (req, res) => {
     const skip = (page-1)*limit
     
     const filter = {}
-    if (search) filter.name = {$regex: search, $options: 'i'}
+    if (search) filter.$or = [{category:{$regex: search, $options: 'i'}},
+                              {subCategory:{$regex: search, $options: 'i'}}]
 
     const [ categories, totalCategories ] = await Promise.all([Category.find(filter).skip(skip).limit(limit),
       Category.countDocuments()
