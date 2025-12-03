@@ -6,7 +6,7 @@ const CategorySchema = new mongoose.Schema(
     category: { type: String, required: true },
 
     // Subcategories list
-    subcategory: [{ type: String, required: true }],
+    subCategory: [{ type: String, required: true }],
 
     isActive: { type: Boolean, default: true }
   },

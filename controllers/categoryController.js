@@ -1,10 +1,11 @@
 const Category = require("../models/category");
+const { sendSuccess } = require("./BaseController");
 
 // Create Category
 const createCategory = async (req, res) => {
   try {
     const category = await Category.create(req.body);
-    res.status(201).json({ success: true, category });
+    res.status(201).json({ success: true, message: 'Category added successfully' , data: category });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
@@ -13,8 +14,29 @@ const createCategory = async (req, res) => {
 // Get All Categories
 const getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.find();
-    res.json({ success: true, categories });
+    const { search } = req.query
+    const page = parseInt(req.query.page)
+    const limit = parseInt(req.query.limit)
+    const skip = (page-1)*limit
+    
+    const filter = {}
+    if (search) filter.name = {$regex: search, $options: 'i'}
+
+    const [ categories, totalCategories ] = await Promise.all([Category.find(filter).skip(skip).limit(limit),
+      Category.countDocuments()
+    ])
+
+    const data = {
+      categories,
+      pagination: {
+        currentPage: page,
+        totalItems: totalCategories,
+        totalPages: Math.ceil(totalCategories/limit)
+      }
+    }
+
+    sendSuccess(res,'Categories fetched',data,200)
+    
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -44,7 +66,7 @@ const updateCategory = async (req, res) => {
 
     if (!updated) return res.status(404).json({ message: "Category not found" });
 
-    res.json({ success: true, updated });
+    res.json({ success: true, message: 'Category updated successfully', data: updated });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
