@@ -17,6 +17,7 @@ const { authenticateAdmin } = require('../middlewares/auth');
 const productCtrl = require('../controllers/productController')
 const stockCtrl = require('../controllers/stockController')
 const categoryCtrl = require('../controllers/categoryController')
+const designCtrl = require('../controllers/designController')
 const router = express.Router();
 
 router.post('/login', adminLogin);
@@ -67,5 +68,11 @@ router.delete("/stock/:id", stockCtrl.deleteStock);
 
 router.put("/stock/deactivate/:id", stockCtrl.deactivateStock);
 router.put("/stock/activate/:id", stockCtrl.activateStock);
+
+
+// designs 
+
+router.post("/design", designCtrl.uploadDesign);
+
 
 module.exports = router;

@@ -17,12 +17,12 @@ const DesignSchema = new mongoose.Schema(
     designType: {
       type: String,
       enum: ["AI", "User", "Template"],
-      required: true
+      required: true,
+      default: 'Template'
     },
 
     category: {
       type: String,
-      enum: ["Kids", "Sports", "Anime", "Abstract", "Vintage", "Minimal", "Other"],
       required: true,
       index: true
     },

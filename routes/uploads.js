@@ -12,19 +12,45 @@ const storage = new CloudinaryStorage({
   },
 });
 
-const upload = multer({ storage });
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image/")) cb(null, true);
+  else cb(new Error("Only images allowed"), false);
+};
+
+const upload = multer({ storage,
+    fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+ });
 
 // MULTIPLE IMAGE UPLOAD API
 router.post("/upload-images", upload.array("images", 10), (req, res) => {
-  const urls = req.files.map(file => ({
+  try {
+    const files = req.files.map(file => ({
     url: file.path,
-    public_id: file.filename
+    public_id: file.filename || file.public_id
   }));
 
   res.json({
+    success: true,
     message: "Images uploaded successfully",
-    files: urls
+    files
   });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
+  }
 });
+
+// DELETE IMAGE
+router.delete("/delete-image/:publicId", async (req, res) => {
+  try {
+    await cloudinary.uploader.destroy(req.params.publicId);
+    res.json({ success: true, message: "Image deleted" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+})
 
 module.exports = router;
