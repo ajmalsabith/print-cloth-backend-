@@ -93,7 +93,7 @@ const addUserValidation = Joi.object({
 
 const uploadDesignValidation = Joi.object({
   designName: commonPatterns.name.messages(customMessages),
-  imageUrl: commonPatterns.name.messages(customMessages),
+  imageURL: commonPatterns.name.messages(customMessages),
   imagePublicId: commonPatterns.name.messages(customMessages),
   designType: Joi.string().valid('AI', 'User', 'Template'),
   category: commonPatterns.name.messages(customMessages),

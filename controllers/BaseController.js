@@ -1,5 +1,6 @@
 const { sendSuccess, sendError, sendValidationError } = require('../utils/response');
 const logger = require('../utils/logger');
+const { ValidationError } = require('../utils/errors');
 
 class BaseController {
   static asyncHandler(fn) {
@@ -10,13 +11,18 @@ class BaseController {
 
   static validateRequest(schema, data) {
     const { error, value } = schema.validate(data, { abortEarly: false });
+
+    console.log('val error', error);
+    console.log('value', value);
+    
     
     if (error) {
       throw {
         name: 'ValidationError',
-        details: error.details
-      };
+        errors: error.details
+      }
     }
+      
     
     return value;
   }

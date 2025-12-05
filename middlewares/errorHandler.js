@@ -6,7 +6,7 @@ const errorHandler = (err, req, res, next) => {
   error.message = err.message;
 
 
-  console.log('handler', error.message);
+  console.log('handler', error);
   
   logger.error(`Error ${err.message}`, {
     stack: err.stack,
@@ -32,7 +32,8 @@ const errorHandler = (err, req, res, next) => {
       field: val.path,
       message: val.message
     }));
-    return sendError(res, 'Validation Error', 400, errors);
+    logger.error(errors)
+    return sendError(res, 'ValidationError', 400, errors);
   }
 
   if (err.name === 'JsonWebTokenError') {
