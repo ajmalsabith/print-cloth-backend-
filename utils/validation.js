@@ -91,6 +91,16 @@ const addUserValidation = Joi.object({
   email: commonPatterns.email.messages(customMessages),
 })
 
+const uploadDesignValidation = Joi.object({
+  designName: commonPatterns.name.messages(customMessages),
+  imageUrl: commonPatterns.name.messages(customMessages),
+  imagePublicId: commonPatterns.name.messages(customMessages),
+  designType: Joi.string().valid('AI', 'User', 'Template'),
+  category: commonPatterns.name.messages(customMessages),
+  tags: Joi.array().items(Joi.string()).messages(customMessages),
+  status: Joi.string().valid('public', 'private')
+})
+
 
 const ValidationHelpers = {
   validatePagination: (query) => {
@@ -126,5 +136,6 @@ module.exports = {
   commonPatterns,
   customMessages,
   strongPasswordValidation,
-  addUserValidation
+  addUserValidation,
+  uploadDesignValidation
 };

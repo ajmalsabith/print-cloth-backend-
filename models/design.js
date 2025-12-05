@@ -14,6 +14,11 @@ const DesignSchema = new mongoose.Schema(
       required: true
     },
 
+    imagePublicId: {
+      type: String,
+      required: true
+    },
+
     designType: {
       type: String,
       enum: ["AI", "User", "Template"],
