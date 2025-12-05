@@ -97,17 +97,13 @@ class ErrorUtils {
 
   static extractMessage(error) {
 
-    console.log('error in extract', error)
     if (error instanceof AppError) {
       return error.message;
     }
 
     if (error.name === 'ValidationError' ) {
 
-      console.log('in validation');
-      
       const messages = Object.values(error.details).map(err => err.message);
-      console.log('mess:',messages);
       
       return messages.join(', ');
     }

@@ -25,11 +25,7 @@ class ResponseFormatter {
 
   static error(res, error, statusCode = null) {
 
-    console.log('eror in formatter:', error);
-    
     const formattedError = ErrorUtils.formatError(error);
-
-    console.log('formatted error:', formattedError);
     
     const finalStatusCode = statusCode || formattedError.error.statusCode;
 
