@@ -123,6 +123,24 @@ const deleteDesign = asyncHandler(async (req, res) => {
   }
 });
 
+const updateDesignStatus = async (req, res) => {
+  const { action } = req.body;
+
+  console.log('body', action);
+  
+
+  switch (action) {
+    case "toggle":
+      return toggleStatusDesign(req, res);
+    case "approve":
+      return approveDesign(req, res);
+    case "reject":
+      return rejectDesign(req, res);
+    default:
+      return res.status(400).json({ message: "Invalid action" });
+  }
+};
+
 const toggleStatusDesign = asyncHandler(async (req, res) => {
   const design = await Design.findById(req.params.id);
 
@@ -140,9 +158,45 @@ const toggleStatusDesign = asyncHandler(async (req, res) => {
   sendSuccess(res, "Updated", design);
 });
 
+const approveDesign = asyncHandler(async (req, res) => {
+
+    console.log('in pyyy');
+    
+  const design = await Design.findById(req.params.id);
+
+  console.log('design', design);
+  
+
+  if (!design) return sendError(res, "Design not found", 404);
+
+  if (design.status === "pending" || design.status === "rejected") {
+    design.status = "active"
+  } else {
+    return sendError(res, "Operation prohibited", 403);
+  }
+  await design.save();
+
+  sendSuccess(res, "Updated", design);
+});
+
+const rejectDesign = asyncHandler(async (req, res) => {
+  const design = await Design.findById(req.params.id);
+
+  if (!design) return sendError(res, "Design not found", 404);
+
+  if (design.status === "pending") {
+    design.status = "rejected"
+  } else {
+    return sendError(res, "Operation prohibited", 403);
+  }
+  await design.save();
+
+  sendSuccess(res, "Updated", design);
+});
+
 module.exports = {
   uploadDesign,
   getAllDesigns,
   deleteDesign,
-  toggleStatusDesign,
+  updateDesignStatus
 };

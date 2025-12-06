@@ -75,8 +75,8 @@ router.put("/stock/activate/:id", stockCtrl.activateStock);
 
 router.get("/design", authenticateAdmin , designCtrl.getAllDesigns);
 router.post("/design", authenticateAdmin, upload.single('image'), designCtrl.uploadDesign);
-router.delete("/design/:id" , designCtrl.deleteDesign);
-router.patch("/design/:id" , designCtrl.toggleStatusDesign);
+router.delete("/design/:id", authenticateAdmin, designCtrl.deleteDesign);
+router.patch("/design/:id", authenticateAdmin, designCtrl.updateDesignStatus);
 
 
 module.exports = router;
