@@ -99,6 +99,14 @@ const uploadDesignValidation = Joi.object({
   visibility: Joi.string().valid('public', 'private', 'pending', 'rejected')
 })
 
+const editDesignValidation = Joi.object({
+  designName: commonPatterns.name.messages(customMessages),
+  designType: Joi.string().valid('AI', 'User', 'Template'),
+  category: commonPatterns.name.messages(customMessages),
+  tags: Joi.array().items(Joi.string()).messages(customMessages),
+  visibility: Joi.string().valid('public', 'private')
+})
+
 
 const ValidationHelpers = {
   validatePagination: (query) => {
@@ -135,5 +143,6 @@ module.exports = {
   customMessages,
   strongPasswordValidation,
   addUserValidation,
-  uploadDesignValidation
+  uploadDesignValidation,
+  editDesignValidation
 };

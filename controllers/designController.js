@@ -1,7 +1,7 @@
 const Design = require("../models/design");
 const router = require("../routes/uploads");
 const logger = require("../utils/logger");
-const { uploadDesignValidation } = require("../utils/validation");
+const { uploadDesignValidation, editDesignValidation } = require("../utils/validation");
 const cloudinary = require("../config/cloudinary");
 const {
   validateRequest,
@@ -9,6 +9,7 @@ const {
   sendSuccess,
   sendError,
 } = require("./BaseController");
+const BaseController = require("./BaseController");
 
 // UPLOAD A DESIGN
 const uploadDesign = asyncHandler(async (req, res) => {
@@ -194,9 +195,20 @@ const rejectDesign = asyncHandler(async (req, res) => {
   sendSuccess(res, "Updated", design);
 });
 
+const updateDesign = asyncHandler(async (req, res) => {
+  const validatedData = BaseController.validateRequest(editDesignValidation, req.body)
+
+  const design = await Design.findByIdAndUpdate(req.params.id, validatedData, {new: true});
+
+  if (!design) return sendError(res, "Design not found", 404);
+
+  sendSuccess(res, "Design updated", design);
+});
+
 module.exports = {
   uploadDesign,
   getAllDesigns,
   deleteDesign,
-  updateDesignStatus
+  updateDesignStatus,
+  updateDesign
 };
