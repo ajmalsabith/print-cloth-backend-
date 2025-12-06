@@ -35,6 +35,8 @@ class BaseController {
     return sendSuccess(res, message, data, statusCode);
   }
   static sendError(res, message, statusCode = 500, details = null) {
+    console.log('inhere');
+    
     return sendError(res, message, statusCode, details);
   }
 

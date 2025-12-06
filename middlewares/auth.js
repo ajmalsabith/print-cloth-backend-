@@ -36,7 +36,7 @@ const authenticateUser = async (req, res, next) => {
 const authenticateAdmin = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       logger.warn('Admin auth: Missing or invalid authorization header', { authHeader });
       return sendError(res, 'Access token required', 401);
@@ -66,7 +66,7 @@ const authenticateAdmin = async (req, res, next) => {
       logger.warn('Admin auth: Admin account is banned', { adminId: admin._id });
       return sendError(res, 'Admin account has been banned', 403);
     }
-
+    console.log('in auth:', admin);
     req.admin = admin;
     next();
   } catch (error) {

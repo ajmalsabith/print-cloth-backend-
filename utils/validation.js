@@ -93,12 +93,10 @@ const addUserValidation = Joi.object({
 
 const uploadDesignValidation = Joi.object({
   designName: commonPatterns.name.messages(customMessages),
-  imageURL: commonPatterns.name.messages(customMessages),
-  imagePublicId: commonPatterns.name.messages(customMessages),
   designType: Joi.string().valid('AI', 'User', 'Template'),
   category: commonPatterns.name.messages(customMessages),
   tags: Joi.array().items(Joi.string()).messages(customMessages),
-  status: Joi.string().valid('public', 'private')
+  visibility: Joi.string().valid('public', 'private', 'pending', 'rejected')
 })
 
 

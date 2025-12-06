@@ -22,25 +22,4 @@ const upload = multer({ storage,
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
  });
 
-// MULTIPLE IMAGE UPLOAD API
-router.post("/upload-images", upload.array("images", 10), (req, res) => {
-  try {
-    const files = req.files.map(file => ({
-    url: file.path,
-    public_id: file.filename || file.public_id
-  }));
-
-  res.json({
-    success: true,
-    message: "Images uploaded successfully",
-    files
-  });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    })
-  }
-});
-
-module.exports = router;
+module.exports = upload;

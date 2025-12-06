@@ -50,12 +50,13 @@ const DesignSchema = new mongoose.Schema(
       default: 0
     },
 
-    isActive: {
-      type: Boolean,
-      default: true
-    },
+  status: {
+    type: String,
+    enum: ["active", "inactive", "pending", "rejected"],
+    default: "pending"
+  },
 
-    status: {
+    visibility: {
       type: String,
       enum: ["public", "private"],
       default: "public"

@@ -21,8 +21,8 @@ class Server {
     try {
       await dbConnection.connect();
       
-      setupMiddleware(this.app);
       
+      setupMiddleware(this.app);
       setupRoutes(this.app);
       
       this.app.use(notFound);

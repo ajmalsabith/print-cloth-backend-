@@ -17,7 +17,8 @@ const { authenticateAdmin } = require('../middlewares/auth');
 const productCtrl = require('../controllers/productController')
 const stockCtrl = require('../controllers/stockController')
 const categoryCtrl = require('../controllers/categoryController')
-const designCtrl = require('../controllers/designController')
+const designCtrl = require('../controllers/designController');
+const upload = require('./uploads');
 const router = express.Router();
 
 router.post('/login', adminLogin);
@@ -73,9 +74,9 @@ router.put("/stock/activate/:id", stockCtrl.activateStock);
 // designs 
 
 router.get("/design", authenticateAdmin , designCtrl.getAllDesigns);
-router.post("/design", authenticateAdmin , designCtrl.uploadDesign);
+router.post("/design", authenticateAdmin, upload.single('image'), designCtrl.uploadDesign);
 router.delete("/design/:id" , designCtrl.deleteDesign);
-router.patch("/design/:id" , designCtrl.toggleActiveDesign);
+router.patch("/design/:id" , designCtrl.toggleStatusDesign);
 
 
 module.exports = router;
