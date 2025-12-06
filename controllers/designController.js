@@ -82,14 +82,26 @@ const deleteDesign = asyncHandler(async(req, res) => {
         sendSuccess(res, 'Design deleted successfully')
         
     } catch (error) {
-        logger.error(error.message)
-        throw new Error('Delete failed', 400)
+        logger.error('Delete failed',error.message)
+        throw error
     }
 
+})
+
+const toggleActiveDesign = asyncHandler(async(req, res) => {
+    const design = await Design.findById(req.params.id)
+
+    if (!design) return sendError(res, 'Design not found', 404)
+    
+    design.isActive = !design.isActive
+    await design.save()
+
+    sendSuccess(res,'Updated' ,design)
 })
 
 module.exports = {
     uploadDesign,
     getAllDesigns,
-    deleteDesign
+    deleteDesign,
+    toggleActiveDesign
 }

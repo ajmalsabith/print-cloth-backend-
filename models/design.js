@@ -51,7 +51,7 @@ const DesignSchema = new mongoose.Schema(
     },
 
     isActive: {
-      type: String,
+      type: Boolean,
       default: true
     },
 
