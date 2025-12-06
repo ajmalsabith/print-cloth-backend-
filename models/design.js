@@ -28,7 +28,6 @@ const DesignSchema = new mongoose.Schema(
     designType: {
       type: String,
       enum: ["AI", "User", "Template"],
-      required: true,
       default: 'Template'
     },
 
