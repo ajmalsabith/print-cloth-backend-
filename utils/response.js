@@ -9,7 +9,7 @@ class ResponseFormatter {
       success: true,
       message,
       timestamp: new Date().toISOString(),
-      requestId: res.locals.requestId || null
+      requestId: res?.locals?.requestId || null
     };
 
     if (data !== null) {

@@ -9,6 +9,12 @@ const DesignSchema = new mongoose.Schema(
       index: true
     },
 
+    creatorName: {
+      type: String,
+      default: 'Admin',
+      index: true
+    },
+
     imageURL: {
       type: String,
       required: true
@@ -44,6 +50,11 @@ const DesignSchema = new mongoose.Schema(
       default: 0
     },
 
+    isActive: {
+      type: String,
+      default: true
+    },
+
     status: {
       type: String,
       enum: ["public", "private"],
@@ -54,6 +65,6 @@ const DesignSchema = new mongoose.Schema(
 );
 
 // Enable text search
-DesignSchema.index({ designName: "text", tags: "text", category: "text" });
+DesignSchema.index({ designName: "text", creatorName: "text" , tags: "text", category: "text" });
 
 module.exports = mongoose.model("Design", DesignSchema);

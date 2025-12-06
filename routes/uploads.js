@@ -43,14 +43,4 @@ router.post("/upload-images", upload.array("images", 10), (req, res) => {
   }
 });
 
-// DELETE IMAGE
-router.delete("/delete-image/:publicId", async (req, res) => {
-  try {
-    await cloudinary.uploader.destroy(req.params.publicId);
-    res.json({ success: true, message: "Image deleted" });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-})
-
 module.exports = router;

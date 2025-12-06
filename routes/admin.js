@@ -74,6 +74,7 @@ router.put("/stock/activate/:id", stockCtrl.activateStock);
 
 router.get("/design", authenticateAdmin , designCtrl.getAllDesigns);
 router.post("/design", authenticateAdmin , designCtrl.uploadDesign);
+router.delete("/design/:id" , designCtrl.deleteDesign);
 
 
 module.exports = router;
