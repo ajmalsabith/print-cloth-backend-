@@ -62,7 +62,12 @@ const getAllDesigns = asyncHandler(async (req, res) => {
     const skip = (page - 1) * limit;
 
     const filter = {};
-    if (search) filter.$or = { $regex: search, $options: "i" };
+    if (search) filter.$or = [
+        { designName:{ $regex: search, $options: "i" } },
+        {creatorName:{ $regex: search, $options: "i" }},
+        {category:{ $regex: search, $options: "i" }},
+        {designType:{ $regex: search, $options: "i" }},
+    ];
     if (status) filter.status = status;
 
     const [designs, totalDesigns] = await Promise.all([
