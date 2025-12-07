@@ -28,7 +28,7 @@ class Server {
       this.app.use(notFound);
       this.app.use(errorHandler);
       
-      initializeSocket(this.server);
+      // initializeSocket(this.server);
       
       logger.info('Server initialized successfully');
     } catch (error) {
