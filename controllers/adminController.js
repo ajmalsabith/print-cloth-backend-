@@ -3,7 +3,7 @@ const { generateAdminToken } = require('../utils/jwt');
 const { sendSuccess, sendError, sendValidationError } = require('../utils/response');
 const { adminLoginValidation, statusUpdateValidation, addUserValidation } = require('../utils/validation');
 const logger = require('../utils/logger');
-const { notifyUserBanned, notifyUserUnbanned } = require('../utils/socket');
+// const { notifyUserBanned, notifyUserUnbanned } = require('../utils/socket');
 
 
 const adminLogin = async (req, res) => {
@@ -60,11 +60,15 @@ const getAllUsers = async (req, res) => {
     const skip = (page - 1) * limit;
     const filter = {}
 
-    search ?
+    console.log('search', search);
+    
+
+    if (search) {
       filter.$or = [
       {name: {$regex: search, $options: 'i'}},
       {email: {$regex: search, $options: 'i'}}
-       ] : null
+       ] 
+    }
 
     status ? filter.status = status : null
     role ? filter.role = role : null
@@ -319,8 +323,8 @@ const forceLogoutUser = async (req, res) => {
     const admin = await User.findById(req.user.id);
 
 
-    const { notifyForceLogout } = require('../utils/socket');
-    notifyForceLogout(userId, user.username, admin.username);
+    // const { notifyForceLogout } = require('../utils/socket');
+    // notifyForceLogout(userId, user.username, admin.username);
 
     res.status(200).json({
       success: true,

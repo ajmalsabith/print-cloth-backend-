@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const { generateAdminToken } = require('../utils/jwt');
 const logger = require('../utils/logger');
-const { notifyUserBanned, notifyUserUnbanned } = require('../utils/socket');
+// const { notifyUserBanned, notifyUserUnbanned } = require('../utils/socket');
 
 class AdminService {
   static async login(credentials) {
@@ -161,7 +161,7 @@ class AdminService {
 
       logger.info(`User banned: ${user.email} by ${adminUser.email}, reason: ${reason}`);
       
-      notifyUserBanned(user._id.toString(), user.name, adminUser.name, reason);
+      // notifyUserBanned(user._id.toString(), user.name, adminUser.name, reason);
 
       return user.getPublicProfile();
     } catch (error) {
@@ -189,7 +189,7 @@ class AdminService {
 
       logger.info(`User unbanned: ${user.email} by ${adminUser.email}`);
       
-      notifyUserUnbanned(user._id.toString(), user.name, adminUser.name);
+      // notifyUserUnbanned(user._id.toString(), user.name, adminUser.name);
 
       return user.getPublicProfile();
     } catch (error) {

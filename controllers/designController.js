@@ -20,7 +20,9 @@ const uploadDesign = asyncHandler(async (req, res) => {
     const tagArray = tags
       .split(",")
       .map((tag) => tag.trim())
-      .filter((tag) => tag !== "");
+      .filter((tag) => tag !== "")
+    
+    const categoryArray = category.split(',')
 
     const validatedData = validateRequest(uploadDesignValidation, {
       designName,
@@ -71,10 +73,11 @@ const getAllDesigns = asyncHandler(async (req, res) => {
     ];
     if (status) filter.status = status;
 
-    const [designs, totalDesigns] = await Promise.all([
+    const [designs, totalDesigns, DesignCategoryList] = await Promise.all([
       Design.find(filter).skip(skip).limit(limit),
+      Design.countDocuments(),
+      Design.distinct('category')
     ]);
-
     logger.info("Designs fetched successfully");
 
     sendSuccess(
@@ -87,6 +90,7 @@ const getAllDesigns = asyncHandler(async (req, res) => {
           totalItems: totalDesigns,
           totalPages: Math.ceil(totalDesigns / limit),
         },
+        categoryList: DesignCategoryList
       })
     );
   } catch (err) {
@@ -196,7 +200,11 @@ const rejectDesign = asyncHandler(async (req, res) => {
 });
 
 const updateDesign = asyncHandler(async (req, res) => {
-  const validatedData = BaseController.validateRequest(editDesignValidation, req.body)
+  const { tags , ...rest } = req.body
+
+  const tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '')
+
+  const validatedData = BaseController.validateRequest(editDesignValidation, { ...rest, tags: tagsArray })
 
   const design = await Design.findByIdAndUpdate(req.params.id, validatedData, {new: true});
 
