@@ -19,7 +19,7 @@ const adminLogin = async (req, res) => {
     const admin = await User.findByEmail(email);
 
     if (!admin || admin.role !== 'admin') {
-      return sendError(res, 'Invalid admin credentials', 401);
+      return sendError(res,'' ,'Invalid admin credentials', 401);
     }
 
     if (admin.status === 'banned') {
@@ -29,7 +29,7 @@ const adminLogin = async (req, res) => {
 
     const isPasswordValid = await admin.comparePassword(password);
     if (!isPasswordValid) {
-      return sendError(res, 'Invalid admin credentials', 401);
+      return sendError(res, 'AuthenticationError', 'Invalid admin credentials', 401);
     }
 
     const token = generateAdminToken({

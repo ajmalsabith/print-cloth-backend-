@@ -10,6 +10,7 @@ const {
   sendError,
 } = require("./BaseController");
 const BaseController = require("./BaseController");
+const { NotFoundError } = require("../utils/errors");
 
 // UPLOAD A DESIGN
 const uploadDesign = asyncHandler(async (req, res) => {
@@ -22,8 +23,6 @@ const uploadDesign = asyncHandler(async (req, res) => {
       .map((tag) => tag.trim())
       .filter((tag) => tag !== "")
     
-    const categoryArray = category.split(',')
-
     const validatedData = validateRequest(uploadDesignValidation, {
       designName,
       designType,
@@ -35,6 +34,11 @@ const uploadDesign = asyncHandler(async (req, res) => {
     console.log("validated data", validatedData);
 
     const uploaded = req.file;
+
+    if (!req.file) {
+      console.log('in here');
+      throw new NotFoundError('Image file not found')
+    }
     
     validatedData.imageURL = uploaded.path;
     validatedData.imagePublicId = uploaded.filename;
@@ -60,8 +64,8 @@ const getAllDesigns = asyncHandler(async (req, res) => {
   try {
     const { search, status } = req.query;
 
-    const page = parseInt(req.body.page);
-    const limit = parseInt(req.body.limit);
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit) || 16;
     const skip = (page - 1) * limit;
 
     const filter = {};
@@ -70,12 +74,14 @@ const getAllDesigns = asyncHandler(async (req, res) => {
         {creatorName:{ $regex: search, $options: "i" }},
         {category:{ $regex: search, $options: "i" }},
         {designType:{ $regex: search, $options: "i" }},
+        {tags:{ $regex: search, $options: "i" }},
     ];
     if (status) filter.status = status;
 
-    const [designs, totalDesigns, DesignCategoryList] = await Promise.all([
+    const totalDesigns = await Design.find(filter).countDocuments()
+
+    const [designs, DesignCategoryList] = await Promise.all([
       Design.find(filter).skip(skip).limit(limit),
-      Design.countDocuments(),
       Design.distinct('category')
     ]);
     logger.info("Designs fetched successfully");
@@ -83,15 +89,16 @@ const getAllDesigns = asyncHandler(async (req, res) => {
     sendSuccess(
       res,
       "Designs retrived successfully",
-      (data = {
+      data = {
         designs,
         pagination: {
-          currentPage: page,
+          page,
           totalItems: totalDesigns,
           totalPages: Math.ceil(totalDesigns / limit),
+          limit: limit
         },
         categoryList: DesignCategoryList
-      })
+      }
     );
   } catch (err) {
     logger.error(err);

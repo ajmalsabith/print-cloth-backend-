@@ -5,7 +5,13 @@ const { sendSuccess } = require("./BaseController");
 const createCategory = async (req, res) => {
   try {
     const category = await Category.create(req.body);
-    res.status(201).json({ success: true, message: 'Category added successfully' , data: category });
+    res
+      .status(201)
+      .json({
+        success: true,
+        message: "Category added successfully",
+        data: category,
+      });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
@@ -14,30 +20,34 @@ const createCategory = async (req, res) => {
 // Get All Categories
 const getAllCategories = async (req, res) => {
   try {
-    const { search } = req.query
-    const page = parseInt(req.query.page)
-    const limit = parseInt(req.query.limit)
-    const skip = (page-1)*limit
-    
-    const filter = {}
-    if (search) filter.$or = [{category:{$regex: search, $options: 'i'}},
-                              {subCategory:{$regex: search, $options: 'i'}}]
+    const { search } = req.query;
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
+    const skip = (page - 1) * limit;
 
-    const [ categories, totalCategories ] = await Promise.all([Category.find(filter).skip(skip).limit(limit),
-      Category.countDocuments()
-    ])
+    const filter = {};
+    console.log("search", search);
+
+    if (search)
+      filter.$or = [
+        { category: { $regex: search, $options: "i" } },
+        { subCategory: { $regex: search, $options: "i" } },
+      ];
+
+    const totalCategories = await Category.find(filter).countDocuments();
+
+    const categories = await Category.find(filter).skip(skip).limit(limit);
 
     const data = {
       categories,
       pagination: {
         currentPage: page,
         totalItems: totalCategories,
-        totalPages: Math.ceil(totalCategories/limit)
-      }
-    }
+        totalPages: Math.ceil(totalCategories / limit),
+      },
+    };
 
-    sendSuccess(res,'Categories fetched',data,200)
-    
+    sendSuccess(res, "Categories fetched", data, 200);
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -48,7 +58,8 @@ const getCategoryById = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
 
-    if (!category) return res.status(404).json({ message: "Category not found" });
+    if (!category)
+      return res.status(404).json({ message: "Category not found" });
 
     res.json({ success: true, category });
   } catch (err) {
@@ -59,15 +70,18 @@ const getCategoryById = async (req, res) => {
 //  Update Category
 const updateCategory = async (req, res) => {
   try {
-    const updated = await Category.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const updated = await Category.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
 
-    if (!updated) return res.status(404).json({ message: "Category not found" });
+    if (!updated)
+      return res.status(404).json({ message: "Category not found" });
 
-    res.json({ success: true, message: 'Category updated successfully', data: updated });
+    res.json({
+      success: true,
+      message: "Category updated successfully",
+      data: updated,
+    });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -78,7 +92,8 @@ const deleteCategory = async (req, res) => {
   try {
     const deleted = await Category.findByIdAndDelete(req.params.id);
 
-    if (!deleted) return res.status(404).json({ message: "Category not found" });
+    if (!deleted)
+      return res.status(404).json({ message: "Category not found" });
 
     res.json({ success: true, message: "Category deleted" });
   } catch (err) {
@@ -95,7 +110,8 @@ const deactivateCategory = async (req, res) => {
       { new: true }
     );
 
-    if (!category) return res.status(404).json({ message: "Category not found" });
+    if (!category)
+      return res.status(404).json({ message: "Category not found" });
 
     res.json({ success: true, message: "Category deactivated", category });
   } catch (err) {
@@ -112,7 +128,8 @@ const activateCategory = async (req, res) => {
       { new: true }
     );
 
-    if (!category) return res.status(404).json({ message: "Category not found" });
+    if (!category)
+      return res.status(404).json({ message: "Category not found" });
 
     res.json({ success: true, message: "Category activated", category });
   } catch (err) {
@@ -120,15 +137,12 @@ const activateCategory = async (req, res) => {
   }
 };
 
-
-module.exports={
-
-    createCategory,
-    updateCategory,
-    deleteCategory,
-    activateCategory,
-    deactivateCategory,
-    getAllCategories,
-    getCategoryById
-
-}
+module.exports = {
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  activateCategory,
+  deactivateCategory,
+  getAllCategories,
+  getCategoryById,
+};

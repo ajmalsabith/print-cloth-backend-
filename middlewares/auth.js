@@ -71,7 +71,7 @@ const authenticateAdmin = async (req, res, next) => {
     next();
   } catch (error) {
     logger.error('Admin authentication error:', error);
-    return sendError(res, 'Invalid or expired admin token', 401);
+    return sendError(res, 'TokenExpiredError', 'Invalid or expired admin token', 401);
   }
 };
 
