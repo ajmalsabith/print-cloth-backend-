@@ -62,11 +62,14 @@ const uploadDesign = asyncHandler(async (req, res) => {
 // GET ALL DESIGNS
 const getAllDesigns = asyncHandler(async (req, res) => {
   try {
-    const { search, status } = req.query;
+    const { search, status, categories } = req.query;
 
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit) || 16;
     const skip = (page - 1) * limit;
+
+    console.log('categories:', categories);
+    
 
     const filter = {};
     if (search) filter.$or = [
@@ -77,6 +80,7 @@ const getAllDesigns = asyncHandler(async (req, res) => {
         {tags:{ $regex: search, $options: "i" }},
     ];
     if (status) filter.status = status;
+    if (categories) filter.category = {$in: categories}
 
     const totalDesigns = await Design.find(filter).countDocuments()
 

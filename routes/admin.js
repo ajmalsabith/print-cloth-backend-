@@ -67,8 +67,8 @@ router.get("/stock/:id", stockCtrl.getStockById);
 router.put("/stock/:id", stockCtrl.updateStock);
 router.delete("/stock/:id", stockCtrl.deleteStock);
 
-router.put("/stock/deactivate/:id", stockCtrl.deactivateStock);
-router.put("/stock/activate/:id", stockCtrl.activateStock);
+// router.put("/stock/deactivate/:id", stockCtrl.deactivateStock);
+// router.put("/stock/activate/:id", stockCtrl.activateStock);
 
 
 // designs 

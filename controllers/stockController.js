@@ -1,10 +1,13 @@
 const Stock = require("../models/stock");
+const { sendSuccess } = require("./BaseController");
 
 // Create Stock
 const createStock = async (req, res) => {
   try {
+    console.log('in seerver ', req.body);
+    
     const stock = await Stock.create(req.body);
-    res.status(201).json({ success: true, stock });
+    sendSuccess(res, 'Stock added successfully', stock, 201)
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
@@ -13,13 +16,70 @@ const createStock = async (req, res) => {
 //  Get All Stock
 const getAllStock = async (req, res) => {
   try {
-    const stock = await Stock.find()
-      .populate("category")
-      .populate("subcategory");
+    const { search = "" } = req.query;
+    const page = parseInt(req.query.page || 1);
+    const limit = parseInt(req.query.limit || 10);
+    const skip = (page - 1) * limit;
 
-    res.json({ success: true, stock });
+    const pipeline = [
+      // Join category
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      { $unwind: "$category" },
+    ];
+
+    // 🔍 Search filter (only if search exists)
+    if (search) {
+      pipeline.push({
+        $match: {
+          $or: [
+            { "category.category": { $regex: search, $options: "i" } },
+            { subCategory: { $regex: search, $options: "i" } },
+          ],
+        },
+      });
+    }
+
+    // Pagination
+    pipeline.push(
+      { $skip: skip },
+      { $limit: limit }
+    );
+
+    const stocks = await Stock.aggregate(pipeline);
+
+    // Total count (for pagination)
+    const countPipeline = pipeline.filter(
+      stage => !stage.$skip && !stage.$limit
+    );
+
+    const total = await Stock.aggregate([
+      ...countPipeline,
+      { $count: "count" },
+    ]);
+    const totalItems = total[0]?.count
+    const totalPages = Math.ceil(totalItems/limit)
+
+    const data = {
+      stocks,
+      pagination: {
+        page: page,
+        limit,
+        totalItems,
+        totalPages
+      }
+    }
+
+    sendSuccess(res, 'Stocks retrived successfully', data, 200)
+
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    throw err
   }
 };
 
@@ -41,11 +101,9 @@ const getStockById = async (req, res) => {
 // Update Stock
 const updateStock = async (req, res) => {
   try {
-    const updated = await Stock.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const updated = await Stock.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
 
     if (!updated) return res.status(404).json({ message: "Stock not found" });
 
@@ -102,15 +160,12 @@ const activateStock = async (req, res) => {
   }
 };
 
-
-module.exports={
-
-    getAllStock,
-    getStockById,
-    deleteStock,
-    activateStock,
-    deactivateStock,
-    createStock,
-    updateStock
-    
-}
+module.exports = {
+  getAllStock,
+  getStockById,
+  deleteStock,
+  activateStock,
+  deactivateStock,
+  createStock,
+  updateStock,
+};
