@@ -41,6 +41,7 @@ const getAllStock = async (req, res) => {
           $or: [
             { "category.category": { $regex: search, $options: "i" } },
             { subCategory: { $regex: search, $options: "i" } },
+            { color: { $regex: search, $options: "i" } }
           ],
         },
       });
@@ -103,11 +104,11 @@ const updateStock = async (req, res) => {
   try {
     const updated = await Stock.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-    });
+    })
 
     if (!updated) return res.status(404).json({ message: "Stock not found" });
 
-    res.json({ success: true, updated });
+    sendSuccess(res, 'Stock updated successfully', updated, 200)
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -120,7 +121,7 @@ const deleteStock = async (req, res) => {
 
     if (!deleted) return res.status(404).json({ message: "Stock not found" });
 
-    res.json({ success: true, message: "Stock deleted" });
+    res.json({ success: true, message: "Stock deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
