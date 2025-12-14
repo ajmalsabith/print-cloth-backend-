@@ -107,6 +107,14 @@ const editDesignValidation = Joi.object({
   visibility: Joi.string().valid('public', 'private')
 })
 
+// const stockValidation = Joi.object({
+//   designName: commonPatterns.name.messages(customMessages),
+//   designType: Joi.string().valid('AI', 'User', 'Template'),
+//   category: commonPatterns.name.messages(customMessages),
+//   tags: Joi.array().items(Joi.string()).messages(customMessages),
+//   visibility: Joi.string().valid('public', 'private')
+// })
+
 
 const ValidationHelpers = {
   validatePagination: (query) => {

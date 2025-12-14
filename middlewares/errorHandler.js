@@ -5,6 +5,9 @@ const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
+  console.log('eerror in handler', error);
+  
+
   logger.error(`Error ${err.message}`, {
     stack: err.stack,
     url: req.originalUrl,
@@ -33,6 +36,10 @@ const errorHandler = (err, req, res, next) => {
     return sendError(res, 'ValidationError', 400, errors);
   }
 
+  if (err.name === 'NotFoundError') {
+    return sendError(res, error.name ,error.message, 404);
+  }
+  
   if (err.name === 'JsonWebTokenError') {
     return sendError(res, 'Invalid token', 401);
   }

@@ -2,6 +2,7 @@
 
 // Used for managing errors in the application ()
 class AppError extends Error {
+  
   constructor(message, statusCode = 500, code = 'INTERNAL_ERROR') {
     super(message);
     this.name = this.constructor.name;
@@ -34,6 +35,8 @@ class AuthorizationError extends AppError {
 
 class NotFoundError extends AppError {
   constructor(message = 'Resource not found') {
+    console.log('here in nit found');
+    
     super(message, 404, 'NOT_FOUND');
   }
 }
@@ -120,8 +123,12 @@ class ErrorUtils {
       return 'Invalid token';
     }
 
+    if (error.name === 'AuthenticationError') {
+      return 'Invalid credentials';
+    }
+
     if (error.name === 'TokenExpiredError') {
-      return 'Token expired';
+      return 'Token expired, please Login Again';
     }
 
     return error.message || 'Internal server error';
@@ -136,11 +143,19 @@ class ErrorUtils {
       return 400;
     }
 
+    if (error.name === 'NotFoundError') {
+      return 404;
+    }
+
     if (error.name === 'MongoError' && error.code === 11000) {
       return 409;
     }
 
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return 401;
+    }
+
+    if (error.name === 'AuthenticationError') {
       return 401;
     }
 
