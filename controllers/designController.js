@@ -68,9 +68,6 @@ const getAllDesigns = asyncHandler(async (req, res) => {
     const limit = parseInt(req.query.limit) || 16;
     const skip = (page - 1) * limit;
 
-    console.log('categories:', categories);
-    
-
     const filter = {};
     if (search) filter.$or = [
         { designName:{ $regex: search, $options: "i" } },

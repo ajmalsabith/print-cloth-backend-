@@ -60,7 +60,9 @@ const getAllUsers = async (req, res) => {
     const skip = (page - 1) * limit;
     const filter = {}
 
-    console.log('search', search);
+    console.log('roles:', role);
+
+    const roleArray = role.split(',').filter(r=> r!=='')
     
 
     if (search) {
@@ -71,7 +73,7 @@ const getAllUsers = async (req, res) => {
     }
 
     status ? filter.status = status : null
-    role ? filter.role = role : null
+    role ? filter.role = {$in: roleArray} : null
 
     const users = await User.find(filter)
       .select('-password')
@@ -79,21 +81,18 @@ const getAllUsers = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    const totalUsers = await User.countDocuments();
+    const totalUsers = await User.find(filter).countDocuments();
     const totalPages = Math.ceil(totalUsers / limit);
 
     logger.info(`Admin ${req.admin.email} fetched users list (page: ${page})`);
 
-    console.log('users:', users)
-
     sendSuccess(res, 'Users retrieved successfully', {
       users,
       pagination: {
-        currentPage: page,
+        limit,
+        page,
         totalPages,
         totalUsers,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1
       }
     });
 
