@@ -5,7 +5,10 @@ const { sendSuccess } = require("./BaseController");
 //  ADD PRODUCT
 const createProduct = async (req, res) => {
   try {
-    const { sizes, colors, designTemplates } = req.body
+    const { sizes, colors, designTemplates, type } = req.body
+
+    console.log('req body:',req.body);
+    
 
     const sizesArray = sizes.split(',')
     const colorsArray = colors.split(',')
@@ -31,6 +34,7 @@ console.log('here hit');
       ...req.body,
       images,
       imagePublicId,
+      subCategory: type,
       sizes: sizesArray,
       colors: colorsArray,
       designTemplates: designTemplatesArray
@@ -47,10 +51,12 @@ console.log('here hit');
 const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find()
-      .populate("categoryId")
-      .populate("stock");
+      .populate("categoryId").populate('designTemplates')
 
-    res.json({ success: true, products });
+      console.log('fetched products:', products);
+      
+
+    return sendSuccess(res, 'Products fetched successfully', {products}, 200)
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
