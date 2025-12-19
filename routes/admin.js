@@ -22,6 +22,9 @@ const upload = require('./uploads');
 const router = express.Router();
 
 router.post('/login', adminLogin);
+
+//users
+
 router.get('/users', authenticateAdmin, getAllUsers);
 router.get('/users/:id', authenticateAdmin, getUserById);
 router.post('/users', authenticateAdmin, addUser);
@@ -31,13 +34,14 @@ router.post('/users/:id/ban', authenticateAdmin, banUser);
 router.post('/users/:id/unban', authenticateAdmin, unbanUser);
 router.post('/users/:id/force-logout', authenticateAdmin, forceLogoutUser);
 router.patch('/user/:id/status', authenticateAdmin, updateUserStatus);
+
 router.get('/stats', authenticateAdmin, getDashboardStats);
 
 
 
 // products 
 
-router.post("/product", productCtrl.createProduct);
+router.post("/product", upload.fields([{name: 'images.front', maxCount: 1}, {name: 'images.back', maxCount: 2}]), productCtrl.createProduct);
 router.get("/product", productCtrl.getAllProducts);
 router.get("/product/:id", productCtrl.getProductById);
 router.put("/product/:id", productCtrl.updateProduct);
@@ -74,6 +78,8 @@ router.delete("/stock/:id", stockCtrl.deleteStock);
 // designs 
 
 router.get("/design", authenticateAdmin , designCtrl.getAllDesigns);
+//for product form design list
+router.get("/design/select", authenticateAdmin , designCtrl.fetchSelectDesigns);
 router.post("/design", authenticateAdmin, upload.single('image'), designCtrl.uploadDesign);
 router.delete("/design/:id", authenticateAdmin, designCtrl.deleteDesign);
 router.patch("/design/:id", authenticateAdmin, designCtrl.updateDesignStatus);

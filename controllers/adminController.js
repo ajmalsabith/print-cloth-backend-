@@ -62,7 +62,7 @@ const getAllUsers = async (req, res) => {
 
     console.log('roles:', role);
 
-    const roleArray = role.split(',').filter(r=> r!=='')
+    const roleArray =  role ? role.split(',').filter(r=> r!=='') : []
     
 
     if (search) {

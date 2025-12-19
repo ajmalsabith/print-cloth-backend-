@@ -68,6 +68,9 @@ const getAllDesigns = asyncHandler(async (req, res) => {
     const limit = parseInt(req.query.limit) || 16;
     const skip = (page - 1) * limit;
 
+    console.log('categories:', categories);
+    
+
     const filter = {};
     if (search) filter.$or = [
         { designName:{ $regex: search, $options: "i" } },
@@ -105,6 +108,15 @@ const getAllDesigns = asyncHandler(async (req, res) => {
     logger.error(err);
     throw err;
   }
+});
+
+// GET ALL DESIGN LIST FOR PRODUCT FORM
+const fetchSelectDesigns = asyncHandler(async (req, res) => {
+  const designs = await Design.find()
+    .select("_id designName imageURL")
+    .sort({ designName: 1 });
+
+  sendSuccess(res, "Design list fetched successfully", {designs});
 });
 
 //DELETE A DESIGN
@@ -226,5 +238,6 @@ module.exports = {
   getAllDesigns,
   deleteDesign,
   updateDesignStatus,
-  updateDesign
+  updateDesign,
+  fetchSelectDesigns
 };
