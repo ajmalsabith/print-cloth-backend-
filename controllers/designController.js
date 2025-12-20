@@ -110,6 +110,15 @@ const getAllDesigns = asyncHandler(async (req, res) => {
   }
 });
 
+// GET ALL DESIGN LIST FOR PRODUCT FORM
+const fetchSelectDesigns = asyncHandler(async (req, res) => {
+  const designs = await Design.find()
+    .select("_id designName imageURL")
+    .sort({ designName: 1 });
+
+  sendSuccess(res, "Design list fetched successfully", {designs});
+});
+
 //DELETE A DESIGN
 const deleteDesign = asyncHandler(async (req, res) => {
   try {
@@ -229,5 +238,6 @@ module.exports = {
   getAllDesigns,
   deleteDesign,
   updateDesignStatus,
-  updateDesign
+  updateDesign,
+  fetchSelectDesigns
 };

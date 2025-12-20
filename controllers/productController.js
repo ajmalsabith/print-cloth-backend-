@@ -1,10 +1,47 @@
-const Product = require("../models/products");
 
-//  Create product
+const Product = require("../models/product");
+const { sendSuccess } = require("./BaseController");
+
+//  ADD PRODUCT
 const createProduct = async (req, res) => {
   try {
-    const product = await Product.create(req.body);
-    res.status(201).json({ success: true, product });
+    const { sizes, colors, designTemplates, type } = req.body
+
+    console.log('req body:',req.body);
+    
+
+    const sizesArray = sizes.split(',')
+    const colorsArray = colors.split(',')
+
+    let designTemplatesArray = []
+    if (designTemplates) designTemplatesArray = designTemplates.split(',')
+    
+    console.log('sizesArray', sizesArray);
+    console.log('colorsArray', colorsArray);
+    console.log('designTemplatesArray', designTemplatesArray);
+    
+    const frontImage = req.files['images.front']?.[0]
+    const backImage = req.files['images.back']?.[0]
+
+    const images = {
+      front: frontImage?.path,
+      back: backImage?.path,
+    }
+    let imagePublicId = [frontImage.filename, backImage.filename]
+console.log('here hit');
+
+    const product = await Product.create({
+      ...req.body,
+      images,
+      imagePublicId,
+      subCategory: type,
+      sizes: sizesArray,
+      colors: colorsArray,
+      designTemplates: designTemplatesArray
+    })
+
+    console.log('product', product);
+    sendSuccess(res, 'Product added successfully', {product}, 201)
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
@@ -13,11 +50,27 @@ const createProduct = async (req, res) => {
 // Get all products
 const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find()
-      .populate("categoryId")
-      .populate("stock");
+    const { search= '' } = req.query
+    
+    console.log('search', search);
+    
+      let filter = {}
+      if (search) filter.$or = [
+        {name: {$regex: search, $options: 'i'}},
+        // category: {$regex: search, $options: 'i'},
+        {subCategory: {$regex: search, $options: 'i'}},
+      ]
 
-    res.json({ success: true, products });
+      console.log('filter:', filter);
+      
+
+      const products = await Product.find(filter)
+      .populate("categoryId")
+
+      // console.log('fetched products:', products);
+      
+
+    return sendSuccess(res, 'Products fetched successfully', {products}, 200)
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -75,7 +128,7 @@ const deactivateProduct = async (req, res) => {
       req.params.id,
       { isActive: false },
       { new: true }
-    );
+    ).populate('categoryId')
 
     if (!product) return res.status(404).json({ message: "Product not found" });
 
@@ -92,7 +145,7 @@ const activateProduct = async (req, res) => {
       req.params.id,
       { isActive: true },
       { new: true }
-    );
+    ).populate('categoryId')
 
     if (!product) return res.status(404).json({ message: "Product not found" });
 
