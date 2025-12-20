@@ -50,10 +50,24 @@ console.log('here hit');
 // Get all products
 const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find()
-      .populate("categoryId").populate('designTemplates')
+    const { search= '' } = req.query
+    
+    console.log('search', search);
+    
+      let filter = {}
+      if (search) filter.$or = [
+        {name: {$regex: search, $options: 'i'}},
+        // category: {$regex: search, $options: 'i'},
+        {subCategory: {$regex: search, $options: 'i'}},
+      ]
 
-      console.log('fetched products:', products);
+      console.log('filter:', filter);
+      
+
+      const products = await Product.find(filter)
+      .populate("categoryId")
+
+      // console.log('fetched products:', products);
       
 
     return sendSuccess(res, 'Products fetched successfully', {products}, 200)
@@ -114,7 +128,7 @@ const deactivateProduct = async (req, res) => {
       req.params.id,
       { isActive: false },
       { new: true }
-    );
+    ).populate('categoryId')
 
     if (!product) return res.status(404).json({ message: "Product not found" });
 
@@ -131,7 +145,7 @@ const activateProduct = async (req, res) => {
       req.params.id,
       { isActive: true },
       { new: true }
-    );
+    ).populate('categoryId')
 
     if (!product) return res.status(404).json({ message: "Product not found" });
 

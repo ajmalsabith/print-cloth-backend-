@@ -50,7 +50,6 @@ router.delete("/product/:id", productCtrl.deleteProduct);
 router.put("/product/deactivate/:id", productCtrl.deactivateProduct);
 router.put("/product/activate/:id", productCtrl.activateProduct);
 
-
 // category 
 
 router.post("/category", categoryCtrl.createCategory);
