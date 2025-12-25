@@ -67,7 +67,7 @@ const getAllProducts = async (req, res) => {
       const products = await Product.find(filter)
       .populate("categoryId")
 
-      // console.log('fetched products:', products);
+      console.log('fetched products:', products);
       
 
     return sendSuccess(res, 'Products fetched successfully', {products}, 200)
