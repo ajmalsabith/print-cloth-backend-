@@ -10,6 +10,6 @@ router.post('/product/:id', productCtrl.getProductById);
 
 
 //DESIGN
-router.get("/design", designCtrl);
+router.get("/design", designCtrl.getAllDesigns);
 
 module.exports = router;
