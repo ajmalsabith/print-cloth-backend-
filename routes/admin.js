@@ -84,5 +84,4 @@ router.delete("/design/:id", authenticateAdmin, designCtrl.deleteDesign);
 router.patch("/design/:id", authenticateAdmin, designCtrl.updateDesignStatus);
 router.patch("/design/:id/update", authenticateAdmin, designCtrl.updateDesign);
 
-
 module.exports = router;
