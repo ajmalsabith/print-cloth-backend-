@@ -28,7 +28,6 @@ const createProduct = async (req, res) => {
       back: backImage?.path,
     }
     let imagePublicId = [frontImage.filename, backImage.filename]
-console.log('here hit');
 
     const product = await Product.create({
       ...req.body,

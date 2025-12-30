@@ -7,7 +7,11 @@ const ProductSchema = new mongoose.Schema(
 
     description: { type: String },
 
+    //Products selling price
     basePrice: { type: Number, required: true },
+
+    //Product original price before any discount
+    originalPrice: { type: Number, default: null},
 
     sizes: [{ type: String }],
 
@@ -21,6 +25,12 @@ const ProductSchema = new mongoose.Schema(
 
     subCategory: {
       type: String,
+    },
+
+    targetAudience: {
+      type: String,
+      enum: ['Adult', 'Kids'],
+      required: true
     },
 
     designTemplates: [{ type: mongoose.Schema.Types.ObjectId,
@@ -38,18 +48,14 @@ const ProductSchema = new mongoose.Schema(
       }
     ],
 
-    // stock: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "Stock"
-    //   }
-    // ],
-
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false}
 
   },
   { timestamps: true }
 );
+
+//pre save originalPrice to basePrice if not added
+
 
 module.exports = mongoose.model("Product", ProductSchema);
