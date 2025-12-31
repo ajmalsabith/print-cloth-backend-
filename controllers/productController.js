@@ -28,7 +28,6 @@ const createProduct = async (req, res) => {
       back: backImage?.path,
     }
     let imagePublicId = [frontImage.filename, backImage.filename]
-console.log('here hit');
 
     const product = await Product.create({
       ...req.body,
@@ -81,7 +80,7 @@ const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
       .populate("categoryId")
-      .populate("stock");
+      // .populate("stock");
 
     if (!product) return res.status(404).json({ message: "Product not found" });
 
