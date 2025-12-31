@@ -49,7 +49,8 @@ const ProductSchema = new mongoose.Schema(
     ],
 
     isActive: { type: Boolean, default: true },
-    isDeleted: { type: Boolean, default: false}
+    isDeleted: { type: Boolean, default: false},
+    isCustomizable: { type: Boolean, default: false}
 
   },
   { timestamps: true }

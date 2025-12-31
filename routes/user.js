@@ -6,7 +6,7 @@ const router = express.Router();
 
 //PRODUCT
 router.get('/product', productCtrl.getAllProducts);
-router.post('/product/:id', productCtrl.getProductById);
+router.get('/product/:id', productCtrl.getProductById);
 
 
 //DESIGN

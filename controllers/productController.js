@@ -80,7 +80,7 @@ const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
       .populate("categoryId")
-      .populate("stock");
+      // .populate("stock");
 
     if (!product) return res.status(404).json({ message: "Product not found" });
 
