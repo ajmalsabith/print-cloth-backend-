@@ -149,6 +149,8 @@ const deleteDesign = asyncHandler(async (req, res) => {
   }
 });
 
+
+// DESIGN APPROVE/REJECT STATUS
 const updateDesignStatus = async (req, res) => {
   const { action } = req.body;
 
@@ -167,6 +169,7 @@ const updateDesignStatus = async (req, res) => {
   }
 };
 
+//TOGGLE ACTIVE/INACTIVE STATUS
 const toggleStatusDesign = asyncHandler(async (req, res) => {
   const design = await Design.findById(req.params.id);
 
@@ -182,6 +185,24 @@ const toggleStatusDesign = asyncHandler(async (req, res) => {
   await design.save();
 
   sendSuccess(res, "Updated", design);
+});
+
+//TOGGLE POPULAR STATUS
+const toggleIsPopular = asyncHandler(async (req, res) => {
+  const design = await Design.findById(req.params.id);
+
+  if (!design) return sendError(res, "Design not found", 404);
+
+  if (design.isPopular === true || design.isPopular === false) {
+    design.isPopular === true
+      ? (design.isPopular = false)
+      : (design.isPopular = true);
+  } else {
+    return sendError(res, "Review design before changing popularity!", 409);
+  }
+  await design.save();
+
+  sendSuccess(res, "Updated popularity", design);
 });
 
 const approveDesign = asyncHandler(async (req, res) => {
@@ -239,6 +260,7 @@ module.exports = {
   getAllDesigns,
   deleteDesign,
   updateDesignStatus,
+  toggleIsPopular,
   updateDesign,
   fetchSelectDesigns
 };
