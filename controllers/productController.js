@@ -154,6 +154,23 @@ const activateProduct = async (req, res) => {
   }
 };
 
+// TOGGLE POPULARITY STATUS
+const toggleIsPopular = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id).populate('categoryId')
+
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    product.isPopular === true ? product.isPopular = false : product.isPopular = true
+
+    await product.save()
+
+    res.json({ success: true, message: "Product popularity changed", product });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 
 
 module.exports ={
@@ -163,5 +180,6 @@ module.exports ={
     updateProduct,
     deleteProduct,
     activateProduct,
-    deactivateProduct
+    deactivateProduct,
+    toggleIsPopular
 }
