@@ -59,7 +59,8 @@ const DesignSchema = new mongoose.Schema(
       type: String,
       enum: ["public", "private"],
       default: "public"
-    }
+    },
+    isPopular: { type: Boolean, default: false}
   },
   { timestamps: true }
 );

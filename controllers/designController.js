@@ -16,7 +16,7 @@ const { NotFoundError } = require("../utils/errors");
 const uploadDesign = asyncHandler(async (req, res) => {
   try {
 
-    const { designName, designType, category, tags, visibility } = req.body;
+    const { designName, designType, category, tags, visibility, isPopular } = req.body;
 
     const tagArray = tags
       .split(",")
@@ -26,6 +26,7 @@ const uploadDesign = asyncHandler(async (req, res) => {
     const validatedData = validateRequest(uploadDesignValidation, {
       designName,
       designType,
+      isPopular,
       category,
       tags: tagArray,
       visibility,
