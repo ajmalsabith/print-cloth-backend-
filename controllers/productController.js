@@ -1,5 +1,6 @@
 
 const Product = require("../models/product");
+const logger = require("../utils/logger");
 const { sendSuccess, sendError } = require("./BaseController");
 
 //  ADD PRODUCT
@@ -86,7 +87,7 @@ const getAllProducts = async (req, res) => {
       );
     }
   catch (err) {
-    sendError(res, err.message)
+    res.status(500).json({message: err.message})
   }
 };
 
