@@ -1,6 +1,6 @@
 
 const Product = require("../models/product");
-const { sendSuccess } = require("./BaseController");
+const { sendSuccess, sendError } = require("./BaseController");
 
 //  ADD PRODUCT
 const createProduct = async (req, res) => {
@@ -46,36 +46,51 @@ const createProduct = async (req, res) => {
   }
 };
 
-// Get all products
+// GET ALL PRODUCTS
 const getAllProducts = async (req, res) => {
   try {
-    const { search= '' } = req.query
-    
-    console.log('search', search);
-    
-      let filter = {}
+      const { search, status, categories, subCategories } = req.query;
+  
+      const page = parseInt(req.query.page);
+      const limit = parseInt(req.query.limit) || 16;
+      const skip = (page - 1) * limit;
+  
+      const filter = {};
       if (search) filter.$or = [
-        {name: {$regex: search, $options: 'i'}},
-        // category: {$regex: search, $options: 'i'},
-        {subCategory: {$regex: search, $options: 'i'}},
-      ]
-
-      console.log('filter:', filter);
-      
-
-      const products = await Product.find(filter)
-      .populate("categoryId")
-
-      console.log('fetched products:', products);
-      
-
-    return sendSuccess(res, 'Products fetched successfully', {products}, 200)
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+          { name:{ $regex: search, $options: "i" } },
+          {targetAudience:{ $regex: search, $options: "i" }},
+          {subCategory:{ $regex: search, $options: "i" }},
+      ];
+      if (status) filter.status = status;
+      if (categories) filter.categoryId = {$in: categories} //category id array
+      if (subCategories) filter.subCategory = {$in: subCategories}  //subCategory name array
+  
+      const [products, totalProducts] = await Promise.all([
+        Product.find(filter).skip(skip).limit(limit),
+        Product.find(filter).countDocuments()
+      ]);
+      logger.info("Products fetched successfully");
+  
+      sendSuccess(
+        res,
+        "Products fetched successfully",
+        data = {
+          products,
+          pagination: {
+            page,
+            totalProducts,
+            totalPages: Math.ceil(totalProducts / limit),
+            limit: limit
+          }
+        }
+      );
+    }
+  catch (err) {
+    sendError(res, err.message)
   }
 };
 
-//  Get single product
+//  GET SINGLE PRODUCT
 const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
@@ -90,7 +105,7 @@ const getProductById = async (req, res) => {
   }
 };
 
-//  Update product
+//  UPDATE PRODUCT
 const updateProduct = async (req, res) => {
   try {
     const updated = await Product.findByIdAndUpdate(
@@ -107,7 +122,7 @@ const updateProduct = async (req, res) => {
   }
 };
 
-// Delete product
+// DELETE PRODUCT
 const deleteProduct = async (req, res) => {
   try {
     const deleted = await Product.findByIdAndDelete(req.params.id);
@@ -120,7 +135,7 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-//    Deactivate product
+//DEACTIVATE PRODUCT
 const deactivateProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(
@@ -137,7 +152,7 @@ const deactivateProduct = async (req, res) => {
   }
 };
 
-// Activate product
+// ACTIVATE PRODUCT
 const activateProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(
