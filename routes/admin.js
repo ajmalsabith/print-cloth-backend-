@@ -49,6 +49,7 @@ router.delete("/product/:id", productCtrl.deleteProduct);
 
 router.put("/product/deactivate/:id", productCtrl.deactivateProduct);
 router.put("/product/activate/:id", productCtrl.activateProduct);
+router.patch("/product/:id", productCtrl.toggleIsPopular);
 
 // category 
 
@@ -82,6 +83,7 @@ router.get("/design/select", authenticateAdmin , designCtrl.fetchSelectDesigns);
 router.post("/design", authenticateAdmin, upload.single('image'), designCtrl.uploadDesign);
 router.delete("/design/:id", authenticateAdmin, designCtrl.deleteDesign);
 router.patch("/design/:id", authenticateAdmin, designCtrl.updateDesignStatus);
+router.patch("/design/:id/popular", authenticateAdmin, designCtrl.toggleIsPopular);
 router.patch("/design/:id/update", authenticateAdmin, designCtrl.updateDesign);
 
 module.exports = router;

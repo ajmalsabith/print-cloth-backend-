@@ -96,7 +96,8 @@ const uploadDesignValidation = Joi.object({
   designType: Joi.string().valid('AI', 'User', 'Template'),
   category: commonPatterns.name.messages(customMessages),
   tags: Joi.array().items(Joi.string()).messages(customMessages),
-  visibility: Joi.string().valid('public', 'private', 'pending', 'rejected')
+  visibility: Joi.string().valid('public', 'private', 'pending', 'rejected'),
+  isPopular: Joi.boolean()
 })
 
 const editDesignValidation = Joi.object({
