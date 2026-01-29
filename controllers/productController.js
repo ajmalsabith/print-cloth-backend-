@@ -49,7 +49,8 @@ const createProduct = async (req, res) => {
 // GET ALL PRODUCTS
 const getAllProducts = async (req, res) => {
   try {
-    const { search, status, categories, subCategories } = req.query;
+    const { search, status, categories, subCategories, sortBy } = req.query;
+    let { sortOrder = "asc" } = req.query;
 
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit) || 16;
@@ -72,8 +73,12 @@ const getAllProducts = async (req, res) => {
       filter.subCategory = { $in: subCategories };
     }
 
+    //sort
+    sortOrder = sortOrder === "asc" ? 1 : -1;
+    const sortObj = { [sortBy]: sortOrder };
+
     const [products, totalProducts, categoryList] = await Promise.all([
-      Product.find(filter).skip(skip).limit(limit),
+      Product.find(filter).sort(sortObj).skip(skip).limit(limit),
       Product.countDocuments(filter),
       Category.find({ isActive: true }).select({
         _id: 1,
@@ -95,8 +100,8 @@ const getAllProducts = async (req, res) => {
           totalPages: Math.ceil(totalProducts / limit),
           limit: limit,
         },
-        categoryList
-      })
+        categoryList,
+      }),
     );
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -107,7 +112,7 @@ const getAllProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).populate(
-      "categoryId"
+      "categoryId",
     );
     // .populate("stock");
 
@@ -153,7 +158,7 @@ const deactivateProduct = async (req, res) => {
     const product = await Product.findByIdAndUpdate(
       req.params.id,
       { isActive: false },
-      { new: true }
+      { new: true },
     ).populate("categoryId");
 
     if (!product) return res.status(404).json({ message: "Product not found" });
@@ -170,7 +175,7 @@ const activateProduct = async (req, res) => {
     const product = await Product.findByIdAndUpdate(
       req.params.id,
       { isActive: true },
-      { new: true }
+      { new: true },
     ).populate("categoryId");
 
     if (!product) return res.status(404).json({ message: "Product not found" });
@@ -185,7 +190,7 @@ const activateProduct = async (req, res) => {
 const toggleIsPopular = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).populate(
-      "categoryId"
+      "categoryId",
     );
 
     if (!product) return res.status(404).json({ message: "Product not found" });
