@@ -7,7 +7,7 @@ const router = express.Router()
 //cart api handlers
 router.get('/', authenticateUser, CartController.fetchCart)
 router.post('/', authenticateUser, CartController.addToCart)
-// router.put('/', authenticateUser, CartController.syncCart)
+router.put('/', authenticateUser, CartController.syncCart)
 router.delete('/', authenticateUser, CartController.removeFromCart)
 
 
