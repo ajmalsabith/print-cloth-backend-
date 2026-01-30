@@ -39,6 +39,10 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === 'NotFoundError') {
     return sendError(res, error.name ,error.message, 404);
   }
+
+  if (err.name === 'AuthenticationError') {
+    return sendError(res, error.name ,error.message, 401);
+  }
   
   if (err.name === 'JsonWebTokenError') {
     return sendError(res, 'Invalid token', 401);
