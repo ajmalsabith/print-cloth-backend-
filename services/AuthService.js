@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { AuthenticationError } = require('../utils/errors');
 const { generateUserToken } = require('../utils/jwt');
 const logger = require('../utils/logger');
 
@@ -35,10 +36,12 @@ class AuthService {
   static async login(credentials) {
     try {
       const { email, password } = credentials;
+      console.log('credentials', credentials);
+      
 
       const user = await User.findByEmail(email);
       if (!user) {
-        throw new Error('Invalid email or password');
+        throw new AuthenticationError('Invalid email or password');
       }
 
       if (user.status === 'banned') {
