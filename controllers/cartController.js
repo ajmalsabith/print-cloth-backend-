@@ -223,8 +223,6 @@ console.log('matching color:', cart.items[itemIndex]?.size, size);
 
         //   if (i.color !== product.color || i.size !== product.size) return null
           
-console.log('quantity', i.quantity);
-
 //check stock
 const requestedQuantity = Math.max(0, i.quantity);
 console.log('reqstd', requestedQuantity);
@@ -264,9 +262,6 @@ console.log('reqstd', requestedQuantity);
         })
         .filter(Boolean)
 
-        console.log('cartItems::', cartItems);
-        
-
       const cart = await Cart.findOne({ user: userId })
 
       if (!cart) throw new NotFoundError("Cart not found");
@@ -288,6 +283,61 @@ console.log('reqstd', requestedQuantity);
       throw error;
     }
   }
+
+  //CHANGE CART ITEM SIZE
+  const updateSize = async (req, res) => {
+  try {
+    const { itemId, productId, size, color } = req.body;
+    const userId = req.user._id;
+
+    const cart = await Cart.findOne({ user: userId });
+    if (!cart) return res.status(404).json({ message: "Cart not found" });
+
+    // Find item being updated
+    console.log('car items::', cart.items);
+    
+    const itemIndex = cart.items.findIndex(
+      (i) => i._id.toString() === itemId
+    );
+
+    if (itemIndex === -1)
+      return res.status(404).json({ message: "Item not found" });
+
+    const item = cart.items[itemIndex];
+
+    // Check if variant already exists
+    const existingIndex = cart.items.findIndex(
+      (i) =>
+        i.product.toString() === productId &&
+        i.color === color &&
+        i.size === size
+    );
+
+    //if product variant already exist
+    if (existingIndex !== -1) {
+      // Merge quantities
+      cart.items[existingIndex].quantity += item.quantity;
+
+      // Remove old item
+      cart.items.splice(itemIndex, 1);
+
+      //if product variant doesnt exist
+    } else {
+      // ✏️ Just update size
+      cart.items[itemIndex].size = size;
+    }
+
+    await cart.save();
+
+    await cart.populate("items.product");
+
+    sendSuccess(res, 'Item size updated', {cart}, 200)
+
+  } catch (err) {
+    console.error("Update size error:", err);
+    throw err
+  }
+};
 
 //   //APPLY COUPON EXPLICITLY
 //   const applyCoupon = async (userId, code) => {
@@ -332,4 +382,5 @@ module.exports = {
     addToCart,
     syncCart,
     removeFromCart,
+    updateSize
 };

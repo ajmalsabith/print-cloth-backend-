@@ -8,6 +8,7 @@ const router = express.Router()
 router.get('/', authenticateUser, CartController.fetchCart)
 router.post('/', authenticateUser, CartController.addToCart)
 router.put('/', authenticateUser, CartController.syncCart)
+router.put('/size', authenticateUser, CartController.updateSize)
 router.delete('/', authenticateUser, CartController.removeFromCart)
 
 
