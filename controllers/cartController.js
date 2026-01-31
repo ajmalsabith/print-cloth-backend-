@@ -14,6 +14,7 @@ console.log('in fetch cart server');
 
       const cart = await Cart.findOne({ user: userId }).populate(
         "items.product")
+console.log('fetcged', cart);
 
       sendSuccess(res, 'Cart fetch successful', {cart}, 200)
     } catch (error) {
@@ -195,7 +196,10 @@ console.log('matching color:', cart.items[itemIndex]?.size, size);
   }
 
   //SYNC CART -> ADD/DECREASE QUANTITY
-  const syncCart = async(items, userId) => {
+  const syncCart = async(req, res) => {
+    const userId = req.user._id
+    const items = req.body
+    
     try {
       if (!Array.isArray(items)) {
         throw new ValidationError("Invalid cart data", 400);
@@ -217,40 +221,46 @@ console.log('matching color:', cart.items[itemIndex]?.size, size);
 
           if (!product) return null;
 
-          //check stock
-          const requestedQuantity = Math.max(1, i.quantity);
-          const allowedQuantity = Math.min(requestedQuantity, product.stock);
+        //   if (i.color !== product.color || i.size !== product.size) return null
+          
+//check stock
+const requestedQuantity = Math.max(0, i.quantity);
+console.log('reqstd', requestedQuantity);
+          if (requestedQuantity === 0) return null
+        //   const allowedQuantity = Math.min(requestedQuantity, product.stock);
 
-          //if no stock
-          if (allowedQuantity === 0) {
-            warnings.push({
-              productId: product._id,
-              message: `${product.name} is out of stock`,
-            });
-            return null;
-          }
+        //   //if no stock
+        //   if (allowedQuantity === 0) {
+        //     warnings.push({
+        //       productId: product._id,
+        //       message: `${product.name} is out of stock`,
+        //     });
+        //     return null;
+        //   }
 
-          //if low stock
-          if (allowedQuantity < requestedQuantity) {
-            warnings.push({
-              productId: product._id,
-              message: `Only ${allowedQuantity} items available for ${product.name}`,
-            });
-          }
+        //   //if low stock
+        //   if (allowedQuantity < requestedQuantity) {
+        //     warnings.push({
+        //       productId: product._id,
+        //       message: `Only ${allowedQuantity} items available for ${product.name}`,
+        //     });
+        //   }
 
-          const basePrice = product.sellingPrice;
+          const basePrice = product.basePrice;
           const finalUnitPrice = basePrice; //after discount later
-          const itemTotal = finalUnitPrice * allowedQuantity;
+          const itemTotal = finalUnitPrice * requestedQuantity;
 
           return {
             product: product._id,
-            quantity: allowedQuantity,
+            quantity: requestedQuantity,
+            color: i.color,
+            size: i.size,
             basePrice,
             finalUnitPrice,
             itemTotal,
-          };
+          }
         })
-        .filter(Boolean);
+        .filter(Boolean)
 
       const cart = await Cart.findOne({ user: userId })
 
@@ -259,8 +269,8 @@ console.log('matching color:', cart.items[itemIndex]?.size, size);
       cart.items = cartItems;
 
       //recalculate totals
-      cart.totalQuantity = this.recalculateTotalQuantity(cart);
-      cart.subTotal = this.recalculateSubTotal(cart);
+      cart.totalQuantity = recalculateTotalQuantity(cart);
+      cart.subTotal = recalculateSubTotal(cart);
 
     //   await this.revalidateAppliedCoupon(cart, warnings);
 
@@ -268,11 +278,66 @@ console.log('matching color:', cart.items[itemIndex]?.size, size);
 
       // await cart.populate("items.product").populate( "appliedCoupon")
 
-      return { cart, warnings };
+      sendSuccess(res, 'Product quantity updated', {cart}, 200)
     } catch (error) {
       throw error;
     }
   }
+
+  //CHANGE CART ITEM SIZE
+  const updateSize = async (req, res) => {
+  try {
+    const { itemId, productId, size, color } = req.body;
+    const userId = req.user._id;
+
+    const cart = await Cart.findOne({ user: userId });
+    if (!cart) return res.status(404).json({ message: "Cart not found" });
+
+    // Find item being updated
+    console.log('car items::', cart.items);
+    
+    const itemIndex = cart.items.findIndex(
+      (i) => i._id.toString() === itemId
+    );
+
+    if (itemIndex === -1)
+      return res.status(404).json({ message: "Item not found" });
+
+    const item = cart.items[itemIndex];
+
+    // Check if variant already exists
+    const existingIndex = cart.items.findIndex(
+      (i) =>
+        i.product.toString() === productId &&
+        i.color === color &&
+        i.size === size
+    );
+
+    //if product variant already exist
+    if (existingIndex !== -1) {
+      // Merge quantities
+      cart.items[existingIndex].quantity += item.quantity;
+
+      // Remove old item
+      cart.items.splice(itemIndex, 1);
+
+      //if product variant doesnt exist
+    } else {
+      // ✏️ Just update size
+      cart.items[itemIndex].size = size;
+    }
+
+    await cart.save();
+
+    await cart.populate("items.product");
+
+    sendSuccess(res, 'Item size updated', {cart}, 200)
+
+  } catch (err) {
+    console.error("Update size error:", err);
+    throw err
+  }
+};
 
 //   //APPLY COUPON EXPLICITLY
 //   const applyCoupon = async (userId, code) => {
@@ -317,4 +382,5 @@ module.exports = {
     addToCart,
     syncCart,
     removeFromCart,
+    updateSize
 };
