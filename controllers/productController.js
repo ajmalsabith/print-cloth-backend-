@@ -52,6 +52,8 @@ const getAllProducts = async (req, res) => {
     const { search, status, categories, subCategories, sortBy } = req.query;
     let { sortOrder = "asc" } = req.query;
 
+    const minPrice = parseInt(req.query.minPrice);
+    const maxPrice = parseInt(req.query.maxPrice);
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit) || 16;
     const skip = (page - 1) * limit;
@@ -71,6 +73,15 @@ const getAllProducts = async (req, res) => {
     //subcategory string array
     if (Array.isArray(subCategories) && subCategories.length > 0) {
       filter.subCategory = { $in: subCategories };
+    }
+
+    //minPrice && maxPrice
+    if (minPrice || maxPrice) {
+      if (minPrice && maxPrice) {
+        filter.basePrice = { $gte:minPrice, $lte:maxPrice }
+      }
+      else if (minPrice) filter.basePrice = { $gte:minPrice }
+      else if (maxPrice) filter.basePrice = { $lte:maxPrice }
     }
 
     //sort
