@@ -52,8 +52,8 @@ const getAllProducts = async (req, res) => {
     const { search, status, categories, subCategories, sortBy } = req.query;
     let { sortOrder = "asc" } = req.query;
 
-    const minPrice = parseInt(req.query.minPrice);
-    const maxPrice = parseInt(req.query.maxPrice);
+    const minPrice = parseInt(req.query.minPrice) || 0;
+    const maxPrice = parseInt(req.query.maxPrice) || 0;
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit) || 16;
     const skip = (page - 1) * limit;
