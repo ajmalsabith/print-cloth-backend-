@@ -49,8 +49,18 @@ const createProduct = async (req, res) => {
 // GET ALL PRODUCTS
 const getAllProducts = async (req, res) => {
   try {
-    const { search, status, categories, subCategories, sortBy } = req.query;
+    const {
+      search,
+      status,
+      categories,
+      subCategories,
+      sortBy,
+      colors,
+      sizes,
+      design,
+    } = req.query;
     let { sortOrder = "asc" } = req.query;
+    console.log("design ", design);
 
     const minPrice = parseInt(req.query.minPrice);
     const maxPrice = parseInt(req.query.maxPrice);
@@ -74,14 +84,29 @@ const getAllProducts = async (req, res) => {
     if (Array.isArray(subCategories) && subCategories.length > 0) {
       filter.subCategory = { $in: subCategories };
     }
+    //colors array
+    if (Array.isArray(colors) && colors.length > 0) {
+      filter.colors = { $in: colors };
+    }
+    //sizes
+    if (sizes) filter.sizes = { $in: sizes };
+    //design array
+  if (Array.isArray(design) && design.length > 0) {
+  const validDesignIds = design
+    .filter(id => mongoose.Types.ObjectId.isValid(id))
+    .map(id => new mongoose.Types.ObjectId(id));
+
+  if (validDesignIds.length > 0) {
+    filter.designTemplates = { $in: validDesignIds };
+  }
+}
 
     //minPrice && maxPrice
     if (minPrice || maxPrice) {
       if (minPrice && maxPrice) {
-        filter.basePrice = { $gte:minPrice, $lte:maxPrice }
-      }
-      else if (minPrice) filter.basePrice = { $gte:minPrice }
-      else if (maxPrice) filter.basePrice = { $lte:maxPrice }
+        filter.basePrice = { $gte: minPrice, $lte: maxPrice };
+      } else if (minPrice) filter.basePrice = { $gte: minPrice };
+      else if (maxPrice) filter.basePrice = { $lte: maxPrice };
     }
 
     //sort
