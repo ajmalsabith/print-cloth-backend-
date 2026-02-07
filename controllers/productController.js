@@ -1,6 +1,8 @@
 const Category = require("../models/category");
 const Product = require("../models/product");
+const Design = require("../models/design");
 const logger = require("../utils/logger");
+const mongoose = require('mongoose');
 const { sendSuccess, sendError } = require("./BaseController");
 
 //  ADD PRODUCT
@@ -60,7 +62,6 @@ const getAllProducts = async (req, res) => {
       design,
     } = req.query;
     let { sortOrder = "asc" } = req.query;
-    console.log("design ", design);
 
     const minPrice = parseInt(req.query.minPrice) || 0;
     const maxPrice = parseInt(req.query.maxPrice) || 0;
@@ -92,13 +93,14 @@ const getAllProducts = async (req, res) => {
     if (sizes) filter.sizes = { $in: sizes };
     //design array
   if (Array.isArray(design) && design.length > 0) {
-  const validDesignIds = design
-    .filter(id => mongoose.Types.ObjectId.isValid(id))
-    .map(id => new mongoose.Types.ObjectId(id));
 
-  if (validDesignIds.length > 0) {
-    filter.designTemplates = { $in: validDesignIds };
+  const designs = await Design.find({category: { $in: design }}).select("_id")
+  const designIds = designs.map(design => design._id)
+
+  if (designIds.length > 0) {
+    filter.designTemplates = { $in: designIds }
   }
+  
 }
 
     //minPrice && maxPrice
@@ -113,15 +115,18 @@ const getAllProducts = async (req, res) => {
     sortOrder = sortOrder === "asc" ? 1 : -1;
     const sortObj = { [sortBy]: sortOrder };
 
-    const [products, totalProducts, categoryList] = await Promise.all([
+    const [products, totalProducts, designCategory, categoryList] = await Promise.all([
       Product.find(filter).sort(sortObj).skip(skip).limit(limit),
       Product.countDocuments(filter),
+      Design.distinct("category"),
       Category.find({ isActive: true }).select({
         _id: 1,
         category: 1,
         subCategory: 1,
       }),
     ]);
+    console.log('prods:', products);
+    
 
     logger.info("Products fetched successfully");
 
@@ -136,6 +141,7 @@ const getAllProducts = async (req, res) => {
           totalPages: Math.ceil(totalProducts / limit),
           limit: limit,
         },
+        designCategory,
         categoryList,
       }),
     );

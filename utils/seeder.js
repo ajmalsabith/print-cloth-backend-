@@ -3,7 +3,7 @@ const logger = require('../utils/logger');
 
 const seedAdmin = async () => {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@admin.com';
+    const adminEmail = process.env.ADMIN_EMAIL || '1';
     const existingAdmin = await User.findByEmail(adminEmail);
 
     if (!existingAdmin) {
