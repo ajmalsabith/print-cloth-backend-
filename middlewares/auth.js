@@ -33,6 +33,35 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
+const authenticateCart = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return next()
+    }
+
+    const token = authHeader.substring(7);
+
+    const decoded = verifyUserToken(token);
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return next()
+    }
+
+    if (user.status === 'banned') {
+      return sendError(res, 'Account has been banned', 403);
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    logger.error('User authentication error:', error);
+    return sendError(res, 'Invalid or expired token', 401);
+  }
+};
+
 const authenticateAdmin = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -85,5 +114,6 @@ const requireAdmin = (req, res, next) => {
 module.exports = {
   authenticateUser,
   authenticateAdmin,
+  authenticateCart,
   requireAdmin
 };

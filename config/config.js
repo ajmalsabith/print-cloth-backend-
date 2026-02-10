@@ -22,7 +22,7 @@ module.exports = {
   },
 
   CORS: {
-    ORIGIN: [process.env.FRONTEND_URL || "http://localhost:8080"],
+    ORIGIN: [process.env.FRONTEND_URL1 || "http://localhost:8081", process.env.FRONTEND_URL2],
     CREDENTIALS: false,
     METHODS: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     ALLOWED_HEADERS: ["Content-Type", "Authorization", "X-Requested-With"],

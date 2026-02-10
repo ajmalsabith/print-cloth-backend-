@@ -1,6 +1,8 @@
 const Category = require("../models/category");
 const Product = require("../models/product");
+const Design = require("../models/design");
 const logger = require("../utils/logger");
+const mongoose = require('mongoose');
 const { sendSuccess, sendError } = require("./BaseController");
 
 //  ADD PRODUCT
@@ -49,9 +51,20 @@ const createProduct = async (req, res) => {
 // GET ALL PRODUCTS
 const getAllProducts = async (req, res) => {
   try {
-    const { search, status, categories, subCategories, sortBy } = req.query;
+    const {
+      search,
+      status,
+      categories,
+      subCategories,
+      sortBy,
+      colors,
+      sizes,
+      design,
+    } = req.query;
     let { sortOrder = "asc" } = req.query;
 
+    const minPrice = parseInt(req.query.minPrice) || 0;
+    const maxPrice = parseInt(req.query.maxPrice) || 0;
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit) || 16;
     const skip = (page - 1) * limit;
@@ -72,20 +85,48 @@ const getAllProducts = async (req, res) => {
     if (Array.isArray(subCategories) && subCategories.length > 0) {
       filter.subCategory = { $in: subCategories };
     }
+    //colors array
+    if (Array.isArray(colors) && colors.length > 0) {
+      filter.colors = { $in: colors };
+    }
+    //sizes
+    if (sizes) filter.sizes = { $in: sizes };
+    //design array
+  if (Array.isArray(design) && design.length > 0) {
+
+  const designs = await Design.find({category: { $in: design }}).select("_id")
+  const designIds = designs.map(design => design._id)
+
+  if (designIds.length > 0) {
+    filter.designTemplates = { $in: designIds }
+  }
+  
+}
+
+    //minPrice && maxPrice
+    if (minPrice || maxPrice) {
+      if (minPrice && maxPrice) {
+        filter.basePrice = { $gte: minPrice, $lte: maxPrice };
+      } else if (minPrice) filter.basePrice = { $gte: minPrice };
+      else if (maxPrice) filter.basePrice = { $lte: maxPrice };
+    }
 
     //sort
     sortOrder = sortOrder === "asc" ? 1 : -1;
     const sortObj = { [sortBy]: sortOrder };
 
-    const [products, totalProducts, categoryList] = await Promise.all([
+    const [products, totalProducts, designCategory, categoryList] = await Promise.all([
       Product.find(filter).sort(sortObj).skip(skip).limit(limit),
       Product.countDocuments(filter),
+      Design.distinct("category"),
       Category.find({ isActive: true }).select({
         _id: 1,
         category: 1,
         subCategory: 1,
       }),
     ]);
+    console.log('prods:', products);
+    
 
     logger.info("Products fetched successfully");
 
@@ -100,6 +141,7 @@ const getAllProducts = async (req, res) => {
           totalPages: Math.ceil(totalProducts / limit),
           limit: limit,
         },
+        designCategory,
         categoryList,
       }),
     );
