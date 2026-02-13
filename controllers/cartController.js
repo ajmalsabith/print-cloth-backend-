@@ -292,7 +292,9 @@ console.log('reqstd', requestedQuantity);
         cart = await Cart.findOne({ user: userId })
       }
       else {
+        
         cart = await Cart.findOne({ guestId })
+        console.log('guestId in sync api:', guestId);
       }
       if (!cart) throw new NotFoundError("Cart not found");
 
