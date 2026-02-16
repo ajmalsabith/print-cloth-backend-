@@ -1,18 +1,18 @@
 const router = require("express").Router();
-const { default: upload } = require("../config/multer");
+const upload = require('./uploads');
 const BannerController = require("../controllers/bannerController");
 const { authenticateAdmin } = require("../middlewares/auth");
 const Banner = require("../models/Banner");
 
 router.post(
   "/",
-  upload.single("image"),
+  upload.fields([{name: 'backgroundImage', maxCount: 1}, {name: 'mobileImage', maxCount: 1}]),
   authenticateAdmin,
   BannerController.createBanner
 );
 router.get("/", BannerController.fetchBanner);
 router.put(
-  "/:bannerId",
+  "/:bannerId/update",
   upload.single("image"),
   authenticateAdmin,
   BannerController.updateBanner

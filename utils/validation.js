@@ -111,6 +111,7 @@ const createBannerValidation = Joi.object({
   overlay: Joi.boolean().messages(customMessages),
   backgroundColor: Joi.string().messages(customMessages),
   overlayOpacity: Joi.number().messages(customMessages),
+  status: Joi.string().valid('active', 'inactive'),
   alignment: Joi.string().valid('Top', 'Center', 'Bottom'),
 })
 

@@ -45,11 +45,16 @@ const BannerSchema = mongoose.Schema({
     backgroundColor: {
         type: String,
     },
-    alignment: [{
+    alignment: {
         type: String,
         enum: ["Top", "Center", "Bottom"],
         default: 'Center'
-    }],
+    },
+    status: {
+        type: String,
+        enum: ["active", "inactive"],
+        default: 'Center'
+    },
     overlay: {
         type: Boolean,
         default: false
