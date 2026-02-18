@@ -159,6 +159,7 @@ const { sendSuccess } = require("./BaseController");
       //recalculate total basePrice and quantity
       cart.totalQuantity = recalculateTotalQuantity(cart);
       cart.subTotal = recalculateSubTotal(cart);
+      cart.payableTotal = recalculatePayableTotal(cart)
 
     // //   await this.revalidateAppliedCoupon(cart, warnings);
 
@@ -207,6 +208,7 @@ const { sendSuccess } = require("./BaseController");
 
       cart.totalQuantity = recalculateTotalQuantity(cart);
       cart.subTotal = recalculateSubTotal(cart);
+      cart.payableTotal = recalculatePayableTotal(cart)
 
     //   await this.revalidateAppliedCoupon(cart, warnings);
 
@@ -290,7 +292,9 @@ console.log('reqstd', requestedQuantity);
         cart = await Cart.findOne({ user: userId })
       }
       else {
+        
         cart = await Cart.findOne({ guestId })
+        console.log('guestId in sync api:', guestId);
       }
       if (!cart) throw new NotFoundError("Cart not found");
 
@@ -299,6 +303,7 @@ console.log('reqstd', requestedQuantity);
       //recalculate totals
       cart.totalQuantity = recalculateTotalQuantity(cart);
       cart.subTotal = recalculateSubTotal(cart);
+      cart.payableTotal = recalculatePayableTotal(cart)
 
     //   await this.revalidateAppliedCoupon(cart, warnings);
 
@@ -458,6 +463,9 @@ const mergeCart = async(req, res) => {
       }
     })
 
+    userCart.subTotal = recalculateSubTotal(userCart)
+    userCart.totalQuantity = recalculateTotalQuantity(userCart)
+    userCart.payableTotal = recalculatePayableTotal(userCart)
     
     await userCart.save()
     

@@ -37,7 +37,6 @@ const uploadDesign = asyncHandler(async (req, res) => {
     const uploaded = req.file;
 
     if (!req.file) {
-      console.log('in here');
       throw new NotFoundError('Image file not found')
     }
     

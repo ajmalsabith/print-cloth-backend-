@@ -100,6 +100,21 @@ const uploadDesignValidation = Joi.object({
   isPopular: Joi.boolean()
 })
 
+const createBannerValidation = Joi.object({
+  title: commonPatterns.name.messages(customMessages),
+  subTitle: commonPatterns.name.messages(customMessages),
+  primaryButtonText: commonPatterns.name.messages(customMessages),
+  primaryButtonLink: Joi.string().messages(customMessages),
+  secondaryButtonText: Joi.string().messages(customMessages),
+  secondaryButtonLink: commonPatterns.name.messages(customMessages),
+  bannerFor: Joi.string().valid('All', 'Kids', 'Adult'),
+  overlay: Joi.boolean().messages(customMessages),
+  backgroundColor: Joi.string().messages(customMessages),
+  overlayOpacity: Joi.number().messages(customMessages),
+  status: Joi.string().valid('active', 'inactive'),
+  alignment: Joi.string().valid('Top', 'Center', 'Bottom'),
+})
+
 const editDesignValidation = Joi.object({
   designName: commonPatterns.name.messages(customMessages),
   designType: Joi.string().valid('AI', 'User', 'Template'),
@@ -153,5 +168,6 @@ module.exports = {
   strongPasswordValidation,
   addUserValidation,
   uploadDesignValidation,
-  editDesignValidation
+  editDesignValidation,
+  createBannerValidation
 };
