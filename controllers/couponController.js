@@ -109,8 +109,9 @@ const { sendValidationError } = require("../utils/response");
     }
   };
 
-  const deleteCoupon = async (couponId) => {
+  const deleteCoupon = async (req, res) => {
     try {
+      const { couponId } = req.params
       const coupon = await Coupon.findById(couponId);
       if (!coupon) throw new NotFoundError("Coupon not found");
 

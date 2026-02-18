@@ -69,7 +69,9 @@ const { createBannerValidation } = require("../utils/validation");
 
   //FETCH BANNERS
   const fetchBanner = async (req, res) => {
-    const { search = "" } = req.body;
+    const { search = "", status='' } = req.query;
+    console.log('status:', status);
+    
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit) || 16;
     const skip = (page - 1) * limit;
