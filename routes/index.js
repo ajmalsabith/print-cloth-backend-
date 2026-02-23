@@ -7,6 +7,7 @@ const userRoutes = require('./user');
 const cartRoutes = require('./cart');
 const couponRoutes = require('./coupon');
 const bannerRoutes = require('./banner');
+const checkoutRoutes = require('./checkout');
 
 const setupRoutes = (app) => {
     const authLimiter = createAuthLimiter();
@@ -18,6 +19,7 @@ const setupRoutes = (app) => {
     app.use('/api/cart', cartRoutes);
     app.use('/api/coupon', couponRoutes);
     app.use('/api/banner', bannerRoutes);
+    app.use('/api/checkout', checkoutRoutes);
 };
 
 module.exports = {

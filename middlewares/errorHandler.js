@@ -5,7 +5,7 @@ const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
-  console.log('eerror in handler', error);
+  console.log('error in handler', error);
   
 
   logger.error(`Error ${err.message}`, {
@@ -16,39 +16,44 @@ const errorHandler = (err, req, res, next) => {
     userAgent: req.get('User-Agent')
   });
 
-  if (err.name === 'CastError') {
+  if (error.name === 'CastError') {
     const message = 'Resource not found';
     return sendError(res, message, 404);
   }
 
-  if (err.code === 11000) {
+  if (error.code === 11000) {
     const field = Object.keys(err.keyValue)[0];
     const message = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
     return sendError(res, message, 400);
   }
 
-  if (err.name === 'ValidationError') {
-    const errors = Object.values(err.errors).map(val => ({
+  if (error.name === 'ValidationError') {
+    let errors
+    if(err?.errors) {
+      const errors = Object.values(err.errors).map(val => ({
       field: val.path,
       message: val.message
     }));
+    }
     logger.error(errors)
-    return sendError(res, 'ValidationError', 400, errors);
+    console.log('error in val error', error);
+    
+    return sendError(res, error.name, error.message, 400, errors);
   }
 
-  if (err.name === 'NotFoundError') {
+  if (error.name === 'NotFoundError') {
     return sendError(res, error.name ,error.message, 404);
   }
 
-  if (err.name === 'AuthenticationError') {
+  if (error.name === 'AuthenticationError') {
     return sendError(res, error.name ,error.message, 401);
   }
   
-  if (err.name === 'JsonWebTokenError') {
+  if (error.name === 'JsonWebTokenError') {
     return sendError(res, 'Invalid token', 401);
   }
 
-  if (err.name === 'TokenExpiredError') {
+  if (error.name === 'TokenExpiredError') {
     return sendError(res, 'Token expired', 401);
   }
 
