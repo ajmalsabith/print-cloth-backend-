@@ -9,7 +9,7 @@ const authenticateUser = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return sendError(res, 'Access token required', 401);
+      return sendError(res, 'authenticationError','Access token required', 401);
     }
 
     const token = authHeader.substring(7);

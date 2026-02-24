@@ -1,4 +1,4 @@
-// models/Design.js
+// models/COUPON
 const mongoose = require("mongoose");
 
 const CouponSchema = new mongoose.Schema(

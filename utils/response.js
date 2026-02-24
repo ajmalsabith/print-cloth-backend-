@@ -163,6 +163,7 @@ const sendSuccess = (res, message, data = null, statusCode = 200) => {
 };
 
 const sendError = (res, errorName, message, statusCode = 500, details = null) => {
+  console.log('in send error', message, statusCode);
   
   const error = new Error(message);
   error.statusCode = statusCode;

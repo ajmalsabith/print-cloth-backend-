@@ -24,6 +24,9 @@ const { sendSuccess } = require("./BaseController");
         "items.product");
       }
 
+      console.log('cart', cart);
+      
+
       sendSuccess(res, 'Cart fetch successful', {cart}, 200)
     } catch (error) {
       throw error;

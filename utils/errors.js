@@ -103,12 +103,23 @@ class ErrorUtils {
     if (error instanceof AppError) {
       return error.message;
     }
+console.log('error in formatter', error);
 
     if (error.name === 'ValidationError' ) {
 
-      const messages = Object.values(error.details).map(err => err.message);
+      let messages
+      console.log('details:',error.details);
+      if (error.details?.length > 0) {
+        console.log('here i join');
+        
+        messages = Object.values(error.details).map(err => err.message);
+        return messages.join(', ');
+      }
       
-      return messages.join(', ');
+      messages = error.message
+      console.log('messages:',messages);
+      
+      return messages
     }
 
     if (error.name === 'MongoError' || error.name === 'MongooseError') {
