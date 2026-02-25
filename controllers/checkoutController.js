@@ -328,5 +328,10 @@ module.exports = {
     applyCoupon,
     removeCoupon,
     fetchCheckout,
-    selectPaymentMethod
+    selectPaymentMethod,
+    calculateGrandTotal,
+    calculatePayableTotal,
+    calculateSubTotal,
+    validateCoupon,
+    calculateShippingFee
 }
