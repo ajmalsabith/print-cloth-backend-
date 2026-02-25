@@ -66,7 +66,7 @@ const { calculateSubTotal, validateCoupon, calculatePayableTotal, calculateGrand
         label: deliveryAddress.label,
       };
 
-      console.log('order address:', orderAddress);
+      console.log('checkoutDoc:', checkoutDoc);
       
 
       /* ---------------- WALLET ---------------- */
@@ -102,7 +102,7 @@ const { calculateSubTotal, validateCoupon, calculatePayableTotal, calculateGrand
         items,
         totalAmount: grandTotal,
         totalDiscount: discountTotal,
-        codFee: checkout.paymentMethod === 'cod' ? config.COD_FEE : 0,
+        codFee: checkoutDoc.paymentMethod === 'cod' ? config.COD_FEE : 0,
         shippingFee: calculateShippingFee(payableTotal),
         paymentMethod: checkoutDoc.paymentMethod,
         paymentStatus:
@@ -115,10 +115,13 @@ const { calculateSubTotal, validateCoupon, calculatePayableTotal, calculateGrand
       /* ---------------- CLEAR CART ---------------- */
       if (checkoutDoc.sourceType === "cart") {
         const cartDoc = await Cart.findById(checkoutDoc.sourceId)
+        
         cartDoc.items = [];
-        cartDoc.appliedCoupon = null;
+        console.log('cart doc in order:', cartDoc);
         await cartDoc.save();
       }
+
+      await checkout.findByIdAndDelete(checkoutId)
 
       sendSuccess(res, 'Order placed successfully', {orderId: order._id}, 201)
 
