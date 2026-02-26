@@ -105,10 +105,7 @@ const { calculateSubTotal, validateCoupon, calculatePayableTotal, calculateGrand
         codFee: checkoutDoc.paymentMethod === 'cod' ? config.COD_FEE : 0,
         shippingFee: calculateShippingFee(payableTotal),
         paymentMethod: checkoutDoc.paymentMethod,
-        paymentStatus:
-          checkoutDoc.paymentMethod === "wallet"
-            ? config.PAYMENT_STATUS.PAID
-            : config.PAYMENT_STATUS.PENDING,
+        paymentStatus: config.PAYMENT_STATUS.PENDING,
         deliveryAddress: orderAddress,
       });
 
