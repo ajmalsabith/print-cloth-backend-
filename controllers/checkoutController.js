@@ -185,7 +185,7 @@ const fetchCheckout = async(req, res, next) => {
     checkout = await Checkout.create({
       user: userId,
       sourceType: mode,
-      sourceId: mode === 'cart' ? cartId : items.product._id,
+      sourceId: mode === 'cart' ? cartId : items[0].product,
       items,
       subTotal,
       payableTotal: subTotal,
@@ -328,5 +328,10 @@ module.exports = {
     applyCoupon,
     removeCoupon,
     fetchCheckout,
-    selectPaymentMethod
+    selectPaymentMethod,
+    calculateGrandTotal,
+    calculatePayableTotal,
+    calculateSubTotal,
+    validateCoupon,
+    calculateShippingFee
 }
