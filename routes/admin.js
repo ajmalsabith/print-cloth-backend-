@@ -19,6 +19,7 @@ const stockCtrl = require('../controllers/stockController')
 const categoryCtrl = require('../controllers/categoryController')
 const designCtrl = require('../controllers/designController');
 const upload = require('./uploads');
+const { fetchOrder, updateOrderStatus } = require('../controllers/orderController');
 const router = express.Router();
 
 router.post('/login', adminLogin);
@@ -86,4 +87,7 @@ router.patch("/design/:id", authenticateAdmin, designCtrl.updateDesignStatus);
 router.patch("/design/:id/popular", authenticateAdmin, designCtrl.toggleIsPopular);
 router.patch("/design/:id/update", authenticateAdmin, designCtrl.updateDesign);
 
+//ORDERS
+router.get("/orders", authenticateAdmin , fetchOrder);
+router.patch('/orders', authenticateAdmin, updateOrderStatus)
 module.exports = router;
