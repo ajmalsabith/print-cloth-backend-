@@ -29,7 +29,7 @@ const authenticateUser = async (req, res, next) => {
     next();
   } catch (error) {
     logger.error('User authentication error:', error);
-    return sendError(res, 'Invalid or expired token', 401);
+    return sendError(res, 'AUTHENTICATION_ERROR','Invalid or expired token', 401);
   }
 };
 
