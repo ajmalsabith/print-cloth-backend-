@@ -24,9 +24,6 @@ const { sendSuccess } = require("./BaseController");
         "items.product");
       }
 
-      console.log('cart', cart);
-      
-
       sendSuccess(res, 'Cart fetch successful', {cart}, 200)
     } catch (error) {
       throw error;
@@ -424,7 +421,6 @@ const mergeCart = async(req, res) => {
   try {
     const userId = req.user?._id
     const guestId = req.query?.guestId
-    console.log('in merge cart', userId, guestId);
   let cart
 
   if (!userId || !guestId) {
@@ -432,20 +428,26 @@ const mergeCart = async(req, res) => {
     }
 
   
-    const userCart = await Cart.findOne({ user: userId })
-    const guestCart = await Cart.findOne({ guestId })
+    const userCart = await Cart.findOne({ user: userId }).populate("items.product");
+    const guestCart = await Cart.findOne({ guestId }).populate("items.product");
+    const guestEmpty = !guestCart || guestCart.items.length === 0;
+    const userEmpty = !userCart || userCart.items.length === 0;
 
-     //No guestCart = Nothing to merge
-    if (!guestCart || guestCart.items.length === 0) {
+     //No guestCart && No userCart = Nothing to merge
+    if (guestEmpty && userEmpty) {
+      return res.status(200).json({ cart: {items:[]} })
+    }
+    //No guestCart = Nothing to merge
+    else if (guestEmpty) {
       return res.status(200).json({ cart: userCart })
     }
 
     // If user has no cart -> convert guest cart
-    if (!userCart) {
+    if (userEmpty) {
       guestCart.user = userId
       guestCart.guestId = undefined
       await guestCart.save()
-
+      
       return res.status(200).json({ cart: guestCart })
     }
 
@@ -475,7 +477,7 @@ const mergeCart = async(req, res) => {
     //Remove guestCart
     await Cart.deleteOne({ guestId })
     
-    await userCart.populate('items.product')
+    // await userCart.populate('items.product')
 
     sendSuccess(res, 'Cart merged successfully', {cart: userCart}, 200)
 

@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const { AuthenticationError } = require('../utils/errors');
+const { AuthenticationError, ValidationError } = require('../utils/errors');
 const { generateUserToken } = require('../utils/jwt');
 const logger = require('../utils/logger');
 
@@ -9,7 +9,7 @@ class AuthService {
     try {
       const existingUser = await User.findByEmail(userData.email);
       if (existingUser) {
-        throw new Error('User with this email already exists');
+        throw new ValidationError('User with this email already exists');
       }
 
       const user = new User(userData);
