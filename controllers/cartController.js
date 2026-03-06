@@ -482,7 +482,7 @@ const mergeCart = async(req, res) => {
     sendSuccess(res, 'Cart merged successfully', {cart: userCart}, 200)
 
   } catch (error) {
-    console.error('MergeCart error:', error)
+    console.error('Merge Cart error:', error)
     throw error
   }
   }
