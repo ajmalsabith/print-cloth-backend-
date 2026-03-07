@@ -31,6 +31,7 @@
     "mongoose": "^7.5.0",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
+    "pdfkit": "^0.17.2",
     "socket.io": "^4.7.2",
     "winston": "^3.10.0",
     "winston-daily-rotate-file": "^4.7.1"

@@ -57,9 +57,10 @@ const { sendValidationError } = require("../utils/response");
 
   const addCoupon = async (req, res) => {
     try {
-      const couponData = req.body
+      const { couponCode, ...couponData} = req.body
       const coupon = new Coupon({
         ...couponData,
+        couponCode: couponCode.toUpperCase(),
         startDate: toISTDate(couponData.startDate),
         endDate: toISTDate(couponData.endDate),
       });
@@ -76,7 +77,7 @@ const { sendValidationError } = require("../utils/response");
   const updateCoupon = async (req, res) => {
     try {
         const couponId = req.params.couponId
-        const couponData = req.body
+        const { couponCode, ...couponData } = req.body
       const coupon = await Coupon.findById(couponId);
 
       if (!coupon) {
@@ -85,7 +86,7 @@ const { sendValidationError } = require("../utils/response");
 
       if (couponData.couponCode) {
         const existing = await Coupon.findOne({
-          code: couponData.couponCode.toUpperCase(),
+          code: couponCode.toUpperCase(),
           _id: { $ne: couponId },
         });
 
@@ -96,6 +97,7 @@ const { sendValidationError } = require("../utils/response");
 
       Object.assign(coupon, {
         ...couponData,
+        couponCode: couponCode.toUpperCase(),
         startDate: toISTDate(couponData.startDate),
         endDate: toISTDate(couponData.endDate)
       });

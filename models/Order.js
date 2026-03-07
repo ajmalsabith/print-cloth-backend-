@@ -24,13 +24,14 @@ const orderSchema = new mongoose.Schema(
       },
     ],
     shippingFee: Number,
+    subTotal: Number,
     codFee: Number,
     totalDiscount: Number,
     totalAmount: Number,
 
     paymentMethod: {
       type: String,
-      enum: ["cod", "razorpay", "wallet"],
+      enum: ["cod", "razorpay"],
     },
 
     paymentInfo: {

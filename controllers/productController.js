@@ -41,7 +41,6 @@ const createProduct = async (req, res) => {
       designTemplates: designTemplatesArray,
     });
 
-    console.log("product", product);
     sendSuccess(res, "Product added successfully", { product }, 201);
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
@@ -125,8 +124,6 @@ const getAllProducts = async (req, res) => {
         subCategory: 1,
       }),
     ]);
-    console.log('prods:', products);
-    
 
     logger.info("Products fetched successfully");
 
@@ -153,7 +150,9 @@ const getAllProducts = async (req, res) => {
 //  GET SINGLE PRODUCT
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate(
+    const { id } = req.params
+    
+    const product = await Product.findById(new mongoose.Types.ObjectId(id)).populate(
       "categoryId",
     );
     // .populate("stock");

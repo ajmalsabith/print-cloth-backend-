@@ -63,7 +63,7 @@ const validateCoupon = async(code, checkoutTotal, checkoutItems) => {
     let discount = 0;
 
     if (coupon.discountType === "percentage") {
-      discount = (checkoutTotal * coupon.discountValue) / 100;
+      discount = Math.floor((checkoutTotal * coupon.discountValue) / 100);
     } else {
       discount = coupon.discountValue;
     }

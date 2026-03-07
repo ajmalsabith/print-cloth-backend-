@@ -101,6 +101,7 @@ const { calculateSubTotal, validateCoupon, calculatePayableTotal, calculateGrand
         user: userId,
         items,
         totalAmount: grandTotal,
+        subTotal,
         totalDiscount: discountTotal,
         codFee: checkoutDoc.paymentMethod === 'cod' ? config.COD_FEE : 0,
         shippingFee: calculateShippingFee(payableTotal),
