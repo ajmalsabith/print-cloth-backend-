@@ -1,56 +1,53 @@
-const { ObjectId } = require('mongodb')
-const mongoose = require('mongoose')
+const { ObjectId } = require("mongodb");
+const mongoose = require("mongoose");
 
-const CartSchema = mongoose.Schema({
-
+const AddressSchema = mongoose.Schema(
+  {
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     label: {
-        type: String
+      type: String,
     },
     fullName: {
-        type: String
+      type: String,
     },
     phoneNumber: {
-        type: Number
+      type: Number,
     },
-     addressLine1: {
-        type: String
+    addressLine1: {
+      type: String,
     },
-     addressLine2: {
-        type: String
+    addressLine2: {
+      type: String,
     },
-     city: {
-        type: String
+    city: {
+      type: String,
     },
-     state: {
-        type: String
+    state: {
+      type: String,
     },
-     postalCode: {
-        type: String
+    postalCode: {
+      type: String,
     },
-     country: {
-        type: String
+    country: {
+      type: String,
     },
-     isDefaultShipping: {
-        type: Boolean
+    isDefaultShipping: {
+      type: Boolean,
     },
-     isDefaultBilling: {
-        type: Boolean
+    isDefaultBilling: {
+      type: Boolean,
     },
-     createdAt: {
-        type: Date
+    createdAt: {
+      type: Date,
     },
-     updatedAt: {
-        type: Date
+    updatedAt: {
+      type: Date,
     },
-   
-},{timestamps: true})
+  },
+  { timestamps: true },
+);
 
-
-module.exports = mongoose.model('Cart', CartSchema)
-
-
-
+module.exports = mongoose.model("Address", AddressSchema);

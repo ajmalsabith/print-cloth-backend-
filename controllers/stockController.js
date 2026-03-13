@@ -77,7 +77,7 @@ const getAllStock = async (req, res) => {
       }
     }
 
-    sendSuccess(res, 'Stocks retrived successfully', data, 200)
+    sendSuccess(res, 'Stocks retrieved successfully', data, 200)
 
   } catch (err) {
     throw err
