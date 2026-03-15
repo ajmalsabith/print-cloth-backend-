@@ -5,7 +5,7 @@ const CartController = require('../controllers/cartController')
 const router = express.Router()
 
 //cart api handlers
-router.get('/', authenticateCart, CartController.fetchCart)
+router.get('/', CartController.fetchCart)
 router.post('/', authenticateCart, CartController.addToCart)
 router.put('/', authenticateCart, CartController.syncCart)
 router.put('/size', authenticateCart, CartController.updateSize)

@@ -40,12 +40,14 @@ const authenticateCart = async (req, res, next) => {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return next()
     }
+    console.log('user:');
 
     const token = authHeader.substring(7);
 
     const decoded = verifyUserToken(token);
 
     const user = await User.findById(decoded.id);
+    
     if (!user) {
       return next()
     }
