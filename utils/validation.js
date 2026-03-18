@@ -153,6 +153,67 @@ const ValidationHelpers = {
   }
 };
 
+// COLOR OBJECT
+const colorSchema = Joi.object({
+  name: Joi.string().trim().required(),
+  frontImage: Joi.string().uri().allow(null, "").optional(),
+  backImage: Joi.string().uri().allow(null, "").optional()
+});
+
+// PRINTABLE AREA OBJECT
+const printableAreaSchema = Joi.object({
+  x: Joi.number().min(0).required(),
+  y: Joi.number().min(0).required(),
+  width: Joi.number().min(1).required(),
+  height: Joi.number().min(1).required()
+})
+
+// CREATE STUDIO VARIANT
+const createVariantValidation = Joi.object({
+
+  category: Joi.string()
+    .valid("men", "women", "kids")
+    .required(),
+
+  subCategory: Joi.string()
+    .valid("regular", "over-sized", "hoodie", "polo", "crop")
+    .required(),
+
+  colors: Joi.array()
+    .items(colorSchema)
+    .min(1)
+    .required(),
+
+  printableAreas: Joi.object({
+    front: printableAreaSchema.required(),
+    back: printableAreaSchema.required()
+  }).required()
+
+})
+
+// UPDATE STUDIO VARIANT
+const updateVariantValidation = Joi.object({
+
+  category: Joi.string()
+    .valid("men", "women", "kids")
+    .optional(),
+
+  subCategory: Joi.string()
+    .valid("regular", "hoodie", "polo", "crop")
+    .optional(),
+
+  colors: Joi.array()
+    .items(colorSchema)
+    .min(1)
+    .optional(),
+
+  printableAreas: Joi.object({
+    front: printableAreaSchema,
+    back: printableAreaSchema
+  }).optional()
+
+})
+
 module.exports = {
   registerValidation,
   loginValidation,
@@ -169,5 +230,7 @@ module.exports = {
   addUserValidation,
   uploadDesignValidation,
   editDesignValidation,
-  createBannerValidation
+  createBannerValidation,
+  createVariantValidation,
+  updateVariantValidation
 };

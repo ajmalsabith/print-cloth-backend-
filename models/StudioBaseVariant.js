@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const StudioBaseVariantSchema = new mongoose.Schema({
   category: {
     type: String,
@@ -6,7 +8,7 @@ const StudioBaseVariantSchema = new mongoose.Schema({
 
   subCategory: {
     type: String,
-    enum: ["regular", "hoodie", "polo", "crop"]
+    enum: ["regular", "over-sized", "hoodie", "polo", "crop"]
   },
     colors: [
     {
@@ -40,3 +42,5 @@ StudioBaseVariantSchema.index(
   },
   { unique: true }
 )
+
+module.exports = mongoose.model("StudioVariant", StudioBaseVariantSchema);

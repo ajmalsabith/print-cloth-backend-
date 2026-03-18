@@ -11,7 +11,8 @@ const checkoutRoutes = require('./checkout');
 // const orderRoutes = require('./order');
 const paymentRoutes = require('./payment');
 const orderRoutes = require('./order');
-const AddressRoutes = require('./address');
+const addressRoutes = require('./address');
+const studioVariantRoutes = require('./studioVariants');
 
 const setupRoutes = (app) => {
     const authLimiter = createAuthLimiter();
@@ -26,7 +27,8 @@ const setupRoutes = (app) => {
     app.use('/api/checkout', checkoutRoutes);
     app.use('/api/payment', paymentRoutes);
     app.use('/api/order', orderRoutes);
-    app.use('/api/address', AddressRoutes);
+    app.use('/api/address', addressRoutes);
+    app.use('/api/studio-variants', studioVariantRoutes);
 };
 
 module.exports = {
