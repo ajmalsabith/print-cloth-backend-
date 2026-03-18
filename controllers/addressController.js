@@ -1,4 +1,5 @@
 const Address = require("../models/Address");
+const { sendSuccess } = require("../utils/response");
 
 
 // CREATE ADDRESS
@@ -36,7 +37,7 @@ const createAddress = async(req, res) => {
 
     sendSuccess(res, "Address created successfully", address, 201);
   } catch (err) {
-    logger.error(err);
+    console.error(err);
     throw err;
   }
 }
@@ -59,7 +60,7 @@ const updateAddress = async(req, res) => {
 
     sendSuccess(res, "Address updated successfully", updatedAddress, 200);
   } catch (err) {
-    logger.error(err);
+    console.error(err);
     throw err;
   }
 }
@@ -74,7 +75,7 @@ const getAddressByUserId = async(req, res) => {
 
     sendSuccess(res, "User address retrieved successfully", address, 200);
   } catch (err) {
-    logger.error(err);
+    console.error(err);
     throw err;
   }
 }
@@ -93,7 +94,7 @@ const deleteAddress = async(req, res) => {
 
     sendSuccess(res, "Address deleted successfully", address, 200);
   } catch (err) {
-    logger.error(err);
+    console.error(err);
     throw err;
   }
 }
