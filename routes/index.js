@@ -13,6 +13,7 @@ const paymentRoutes = require('./payment');
 const orderRoutes = require('./order');
 const addressRoutes = require('./address');
 const studioVariantRoutes = require('./studioVariants');
+const base64Routes = require('./base64');
 
 const setupRoutes = (app) => {
     const authLimiter = createAuthLimiter();
@@ -29,6 +30,7 @@ const setupRoutes = (app) => {
     app.use('/api/order', orderRoutes);
     app.use('/api/address', addressRoutes);
     app.use('/api/studio-variants', studioVariantRoutes);
+    app.use('/api/image', base64Routes);
 };
 
 module.exports = {

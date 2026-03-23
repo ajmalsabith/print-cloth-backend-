@@ -11,4 +11,4 @@ const upload = require('./uploads');
 
     router.delete("/:id", deleteStudioVariant)
 
-  module.exports = router
+module.exports = router

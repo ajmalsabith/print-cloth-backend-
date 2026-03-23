@@ -9,6 +9,7 @@ const storage = new CloudinaryStorage({
   params: {
     folder: "my-app-images",  // Cloudinary folder name
     allowed_formats: ["jpg", "png", "jpeg"],
+    format: "png"
   },
 });
 
