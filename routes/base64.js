@@ -8,7 +8,6 @@ router.post("/upload-base64", async (req, res) => {
       
       const { image } = req.body;
       
-      console.log('in base 64', image);
     if (!image) {
       return res.status(400).json({ error: "No image provided" });
     }
