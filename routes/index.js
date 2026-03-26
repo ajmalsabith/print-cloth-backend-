@@ -8,12 +8,12 @@ const cartRoutes = require('./cart');
 const couponRoutes = require('./coupon');
 const bannerRoutes = require('./banner');
 const checkoutRoutes = require('./checkout');
-// const orderRoutes = require('./order');
 const paymentRoutes = require('./payment');
 const orderRoutes = require('./order');
 const addressRoutes = require('./address');
 const studioVariantRoutes = require('./studioVariants');
 const base64Routes = require('./base64');
+const userDesignRoutes = require('./userDesign');
 
 const setupRoutes = (app) => {
     const authLimiter = createAuthLimiter();
@@ -31,6 +31,7 @@ const setupRoutes = (app) => {
     app.use('/api/address', addressRoutes);
     app.use('/api/studio-variants', studioVariantRoutes);
     app.use('/api/image', base64Routes);
+    app.use('/api/user-designs', userDesignRoutes);
 };
 
 module.exports = {

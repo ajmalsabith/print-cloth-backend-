@@ -43,6 +43,10 @@ const DesignElementSchema = new mongoose.Schema({
   positionX: Number,
   positionY: Number,
 
+  //width & height
+  width: Number,
+  height: Number,
+
   // transformations
   scaleX: {
     type: Number,
@@ -97,12 +101,13 @@ const UserDesignSchema = new mongoose.Schema({
     type:String
   },
 
-  // all objects placed on tshirt
+  // all objects placed on t-shirt
   elements:[DesignElementSchema],
 
   // generated preview image
   previewImage:{
-    type:String
+    front: {type:String},
+    back: {type:String}
   },
 
   status:{
@@ -116,3 +121,6 @@ const UserDesignSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("UserDesign", UserDesignSchema);
+
+UserDesignSchema.index({ userId: 1, createdAt: -1 });
+
