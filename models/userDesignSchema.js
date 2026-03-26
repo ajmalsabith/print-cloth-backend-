@@ -97,6 +97,10 @@ const UserDesignSchema = new mongoose.Schema({
     type:String
   },
 
+  clothSubCategory:{
+    type:String
+  },
+
   clothColor:{
     type:String
   },
