@@ -1,6 +1,100 @@
 const design = require("../models/design");
 const Order = require("../models/Order");
 
+const getOverview = async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Get total orders
+    const totalOrders = await Order.countDocuments({
+  orderStatus: { $ne: 'CANCELLED' },
+  $or: [
+    { paymentStatus: 'PAID' },
+    { orderStatus: 'DELIVERED', paymentMethod: 'cod' }
+  ]
+});
+
+    // Get total revenue (Sum of all completed non-refund payments/orders amount)
+    const revenueResult = await Order.aggregate([
+  {
+     $match: {
+  paymentStatus: 'PAID',
+  orderStatus: { $ne: 'CANCELLED' }
+},
+  },
+  {
+    $group: {
+      _id: null,
+      totalRevenue: { $sum: "$totalAmount" },
+    },
+  },
+]);
+
+const totalRevenue =
+  revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
+
+    // Gross profit (assume 40% margin for demo since we don't have cost price per product in model initially)
+    const grossProfit = totalRevenue * 0.465;
+
+    // Refund issued
+    const refundsResult = await Order.aggregate([
+  {
+    $match: {
+      paymentStatus: "REFUNDED",
+    },
+  },
+  {
+    $group: {
+      _id: null,
+      totalRefunds: { $sum: "$totalAmount" },
+    },
+  },
+]);
+
+const refundsIssued =
+  refundsResult.length > 0 ? refundsResult[0].totalRefunds : 0;
+
+    // Discounts
+    const discountsResult = await Order.aggregate([
+  {
+    $match: {
+  paymentStatus: 'PAID',
+  orderStatus: { $ne: 'CANCELLED' }
+}
+  },
+  {
+    $group: {
+      _id: null,
+      totalDiscount: { $sum: "$totalDiscount" },
+    },
+  },
+]);
+
+const discountsGiven =
+  discountsResult.length > 0 ? discountsResult[0].totalDiscount : 0;
+
+    // Net revenue
+    const netRevenue = totalRevenue - refundsIssued - discountsGiven;
+
+    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+
+
+    res.json({
+      totalRevenue,
+      netRevenue,
+      grossProfit,
+      totalOrders,
+      averageOrderValue,
+      refundsIssued,
+      discountsGiven,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const getSalesPerformance = async (req, res) => {
   try {
     const filter = req.query.filter || 'daily';
@@ -140,5 +234,6 @@ module.exports = {
     getSalesPerformance,
     getOrderStatusBreakdown,
     getDesignSources,
-    getCategoryPerformance
+    getCategoryPerformance,
+    getOverview
 }

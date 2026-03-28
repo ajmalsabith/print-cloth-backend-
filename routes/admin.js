@@ -94,7 +94,7 @@ router.patch('/orders', authenticateAdmin, updateOrderStatus)
 
 //DASHBOARD
 router.get('/sales', dashboardCtrl.getSalesPerformance);
-// router.get('/overview', authenticateAdmin, getOverview);
+router.get('/overview', dashboardCtrl.getOverview);
 // router.get('/revenue', authenticateAdmin, getRevenue);
 router.get('/order-status', dashboardCtrl.getOrderStatusBreakdown);
 router.get('/design-sources', dashboardCtrl.getDesignSources);
