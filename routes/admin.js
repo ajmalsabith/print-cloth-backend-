@@ -18,6 +18,7 @@ const productCtrl = require('../controllers/productController')
 const stockCtrl = require('../controllers/stockController')
 const categoryCtrl = require('../controllers/categoryController')
 const designCtrl = require('../controllers/designController');
+const dashboardCtrl = require('../controllers/dashboardController');
 const upload = require('./uploads');
 const { fetchOrder, updateOrderStatus } = require('../controllers/orderController');
 const router = express.Router();
@@ -90,4 +91,8 @@ router.patch("/design/:id/update", authenticateAdmin, designCtrl.updateDesign);
 //ORDERS
 router.get("/orders", authenticateAdmin , fetchOrder);
 router.patch('/orders', authenticateAdmin, updateOrderStatus)
+
+//DASHBOARD
+router.get('/sales', authenticateAdmin, dashboardCtrl.getSalesPerformance);
+
 module.exports = router;

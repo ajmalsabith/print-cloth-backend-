@@ -81,4 +81,8 @@ const orderSchema = new mongoose.Schema(
 
 orderSchema.index({ "paymentInfo.razorpayPaymentId": 1 });
 
+orderSchema.index({ createdAt: 1, orderStatus: 1, paymentStatus: 1 });
+
+orderSchema.index({ "items.product": 1 });
+
 module.exports = mongoose.model("Order", orderSchema);
