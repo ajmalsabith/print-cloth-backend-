@@ -4,7 +4,7 @@ const { sendSuccess } = require("./BaseController");
 // Create Stock
 const createStock = async (req, res) => {
   try {
-    console.log('in seerver ', req.body);
+    console.log('in server:', req.body);
     
     const stock = await Stock.create(req.body);
     sendSuccess(res, 'Stock added successfully', stock, 201)
@@ -89,7 +89,6 @@ const getStockById = async (req, res) => {
   try {
     const stock = await Stock.findById(req.params.id)
       .populate("category")
-      .populate("subcategory");
 
     if (!stock) return res.status(404).json({ message: "Stock not found" });
 

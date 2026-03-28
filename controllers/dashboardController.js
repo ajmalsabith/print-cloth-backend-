@@ -35,7 +35,7 @@ const getOverview = async (req, res) => {
 const totalRevenue =
   revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
 
-    // Gross profit (assume 40% margin for demo since we don't have cost price per product in model initially)
+    // Gross profit (assume 40% margin )
     const grossProfit = totalRevenue * 0.465;
 
     // Refund issued
