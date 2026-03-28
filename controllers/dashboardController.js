@@ -1,3 +1,4 @@
+const design = require("../models/design");
 const Order = require("../models/Order");
 
 const getSalesPerformance = async (req, res) => {
@@ -33,6 +34,42 @@ const getSalesPerformance = async (req, res) => {
   }
 };
 
+const getOrderStatusBreakdown = async (req, res) => {
+  try {
+    const statusData = await Order.aggregate([
+      {
+        $group: {
+          _id: '$orderStatus',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    res.json(statusData.map((d) => ({ status: d._id, count: d.count })));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getDesignSources = async (req, res) => {
+  try {
+    const sourceData = await design.aggregate([
+      {
+        $group: {
+          _id: '$designType',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    res.json(sourceData.map((d) => ({ source: d._id, count: d.count })));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
     getSalesPerformance,
+    getOrderStatusBreakdown,
+    getDesignSources
 }

@@ -93,6 +93,11 @@ router.get("/orders", authenticateAdmin , fetchOrder);
 router.patch('/orders', authenticateAdmin, updateOrderStatus)
 
 //DASHBOARD
-router.get('/sales', authenticateAdmin, dashboardCtrl.getSalesPerformance);
+router.get('/sales', dashboardCtrl.getSalesPerformance);
+// router.get('/overview', authenticateAdmin, getOverview);
+// router.get('/revenue', authenticateAdmin, getRevenue);
+router.get('/order-status', dashboardCtrl.getOrderStatusBreakdown);
+router.get('/design-sources', dashboardCtrl.getDesignSources);
+// router.get('/category-performance', authenticateAdmin, getCategoryPerformance);
 
 module.exports = router;
