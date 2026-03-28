@@ -68,8 +68,63 @@ const getDesignSources = async (req, res) => {
   }
 };
 
+const getCategoryPerformance = async (req, res) => {
+  try {
+    const categoryData = await Order.aggregate([
+      // Ignore cancelled orders
+      {
+        $match: {
+          orderStatus: { $ne: "CANCELLED" },
+        },
+      },
+
+      // Break items array
+      { $unwind: "$items" },
+
+      // Join product collection
+      {
+        $lookup: {
+          from: "Product", // collection name
+          localField: "items.product",
+          foreignField: "_id",
+          pipeline: [
+      { $project: { category: 1 } }
+    ],
+          as: "productData",
+        },
+      },
+
+      // Convert array → object
+      { $unwind: "$productData" },
+
+      // Group by category
+      {
+        $group: {
+          _id: "$productData.category",
+          revenue: { $sum: "$items.itemTotal" },
+          count: { $sum: "$items.quantity" },
+        },
+      },
+
+      // Sort by revenue
+      { $sort: { revenue: -1 } },
+    ]);
+
+    res.json(
+      categoryData.map((d) => ({
+        category: d._id,
+        revenue: d.revenue,
+        count: d.count,
+      }))
+    );
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
     getSalesPerformance,
     getOrderStatusBreakdown,
-    getDesignSources
+    getDesignSources,
+    getCategoryPerformance
 }

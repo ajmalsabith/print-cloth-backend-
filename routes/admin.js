@@ -98,6 +98,6 @@ router.get('/sales', dashboardCtrl.getSalesPerformance);
 // router.get('/revenue', authenticateAdmin, getRevenue);
 router.get('/order-status', dashboardCtrl.getOrderStatusBreakdown);
 router.get('/design-sources', dashboardCtrl.getDesignSources);
-// router.get('/category-performance', authenticateAdmin, getCategoryPerformance);
+router.get('/category-performance', dashboardCtrl.getCategoryPerformance);
 
 module.exports = router;
