@@ -1,6 +1,7 @@
 const design = require("../models/design");
 const Order = require("../models/Order");
 
+//GET OVERVIEW IN DASHBOARD
 const getOverview = async (req, res) => {
   try {
     const today = new Date();
@@ -94,6 +95,94 @@ const discountsGiven =
     res.status(500).json({ message: error.message });
   }
 };
+
+//GET REVENUE DETAILS
+//Helper to generate date range
+const generateDateRange = (start, end, formatMonthly = false) => {
+  const dates = [];
+  const current = new Date(start);
+
+  while (current <= end) {
+    if (formatMonthly) {
+      const key = current.toLocaleDateString('en-CA').slice(0, 7); // YYYY-MM
+      if (!dates.includes(key)) dates.push(key);
+      current.setMonth(current.getMonth() + 1);
+    } else {
+      dates.push(current.toLocaleDateString('en-CA').slice(0, 10)); // YYYY-MM-DD
+      current.setDate(current.getDate() + 1);
+    }
+  }
+
+  return dates;
+};
+
+//Fill missing date with 0 revenue (for charts)
+const fillMissingDates = (data, startDate, range) => {
+  const endDate = new Date();
+
+  const isMonthly = range === '12m';
+
+  const allDates = generateDateRange(startDate, endDate, isMonthly);
+
+  // Convert aggregation result to map
+  const revenueMap = {};
+  data.forEach(item => {
+    revenueMap[item.date] = item.revenue;
+  });
+
+  // Fill missing
+  return allDates.map(date => ({
+    date,
+    revenue: revenueMap[date] || 0
+  }));
+};
+
+//Get revenue
+const getRevenue = async (req, res) => {
+  try {
+    const range = req.query.range || '30d';
+    const date = new Date();
+
+        let groupFormat = '%Y-%m-%d';
+
+
+    if (range === '7d') {
+      date.setDate(date.getDate() - 7)
+    }
+    else if (range === '12m') {
+      date.setMonth(date.getMonth() - 12);
+      groupFormat = '%Y-%m';
+    }
+    else {
+      date.setDate(date.getDate() - 30); // 30d default
+    }
+
+    const revenueData = await Order.aggregate([
+      { $match: { createdAt: { $gte: date }, orderStatus: { $ne: 'CANCELLED' }, $or: [{paymentStatus: "PAID"}, {orderStatus: "DELIVERED", paymentMethod: 'cod' }] } },
+      {
+        $group: {
+          _id: { $dateToString: { format: groupFormat, date: '$createdAt' } },
+          revenue: { $sum: '$totalAmount' },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    const formatted = revenueData.map(d => ({
+      date: d._id,
+      revenue: d.revenue
+    }));
+
+    //Fill missing dates
+        const finalData = fillMissingDates(formatted, date, range);
+
+
+    res.json(finalData);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 const getSalesPerformance = async (req, res) => {
   try {
@@ -235,5 +324,6 @@ module.exports = {
     getOrderStatusBreakdown,
     getDesignSources,
     getCategoryPerformance,
-    getOverview
+    getOverview,
+    getRevenue
 }
