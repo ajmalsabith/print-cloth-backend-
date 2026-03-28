@@ -71,52 +71,66 @@ const getDesignSources = async (req, res) => {
 const getCategoryPerformance = async (req, res) => {
   try {
     const categoryData = await Order.aggregate([
-      // Ignore cancelled orders
       {
         $match: {
           orderStatus: { $ne: "CANCELLED" },
+          paymentStatus: "PAID",
         },
       },
 
-      // Break items array
       { $unwind: "$items" },
 
-      // Join product collection
+      // Lookup Product
       {
         $lookup: {
-          from: "Product", // collection name
+          from: "products",
           localField: "items.product",
           foreignField: "_id",
-          pipeline: [
-      { $project: { category: 1 } }
-    ],
           as: "productData",
         },
       },
 
-      // Convert array → object
-      { $unwind: "$productData" },
+      {
+        $unwind: {
+          path: "$productData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
 
-      // Group by category
+      // Lookup Category using categoryId
+      {
+        $lookup: {
+          from: "categories",
+          localField: "productData.categoryId",
+          foreignField: "_id",
+          as: "categoryData",
+        },
+      },
+
+      {
+        $unwind: {
+          path: "$categoryData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // Group by category name
       {
         $group: {
-          _id: "$productData.category",
+          _id: {
+            $ifNull: ["$categoryData.category", "Unknown"],
+          },
           revenue: { $sum: "$items.itemTotal" },
           count: { $sum: "$items.quantity" },
         },
       },
 
-      // Sort by revenue
       { $sort: { revenue: -1 } },
     ]);
 
     res.json(
-      categoryData.map((d) => ({
-        category: d._id,
-        revenue: d.revenue,
-        count: d.count,
-      }))
-    );
+      categoryData
+    )
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
