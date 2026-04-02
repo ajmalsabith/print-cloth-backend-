@@ -10,6 +10,7 @@ const CartSchema = mongoose.Schema({
     guestId: {
         type: String
     },
+    
     items: [{
         product: {
             type: mongoose.Schema.Types.ObjectId,

@@ -34,7 +34,7 @@ const getAllStock = async (req, res) => {
       { $unwind: "$category" },
     ];
 
-    // 🔍 Search filter (only if search exists)
+    // Search filter (only if search exists)
     if (search) {
       pipeline.push({
         $match: {

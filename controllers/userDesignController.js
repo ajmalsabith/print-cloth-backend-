@@ -31,7 +31,7 @@ const saveUserDesign = async (req, res) => {
       productId: payload.product?.variantId || null,
       source: payload.sourceType,
       clothType: payload.product?.type,
-      clothSubcategory: payload.product?.subCategory,
+      clothSubCategory: payload.product?.subCategory,
       clothColor: payload.product?.color,
 
       elements: payload.elements.map((el) => ({

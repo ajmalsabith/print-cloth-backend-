@@ -191,7 +191,7 @@ const getSalesPerformance = async (req, res) => {
     const date = new Date();
 
     if (filter === 'weekly') {
-      format = '%Y-%U'; // Year and week number
+    //   format = '%Y-%U'; // Year and week number
       date.setMonth(date.getMonth() - 3); // last 3 months for weekly
     } else if (filter === 'monthly') {
       format = '%Y-%m';
