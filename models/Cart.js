@@ -10,6 +10,11 @@ const CartSchema = mongoose.Schema({
     guestId: {
         type: String
     },
+    cartType: {
+        type: String,
+        default: 'cart',
+        enum: ['cart', 'studio']
+    },
     
     items: [{
         product: {

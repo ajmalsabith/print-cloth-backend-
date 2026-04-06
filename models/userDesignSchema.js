@@ -58,6 +58,15 @@ const DesignElementSchema = new mongoose.Schema({
     default: 1
   },
 
+  size : {
+    type: String,
+    enum: []
+  },
+
+  price : {
+    type : Number,
+  },
+
   rotation: {
     type: Number,
     default: 0
@@ -102,7 +111,11 @@ const UserDesignSchema = new mongoose.Schema({
   },
 
   clothColor:{
-    type:String
+    type: String
+  },
+
+  totalPrice: {
+    type : Number
   },
 
   // all objects placed on t-shirt

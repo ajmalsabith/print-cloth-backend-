@@ -10,6 +10,10 @@ const StudioBaseVariantSchema = new mongoose.Schema({
     type: String,
     enum: ["regular", "over-sized", "hoodie", "polo", "crop"]
   },
+  price: {
+    type: Number,
+    required: true
+  },
     colors: [
     {
       name: String,

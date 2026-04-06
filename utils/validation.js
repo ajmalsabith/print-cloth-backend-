@@ -178,6 +178,8 @@ const createVariantValidation = Joi.object({
   subCategory: Joi.string()
     .valid("regular", "over-sized", "hoodie", "polo", "crop")
     .required(),
+  
+  price: Joi.number().required(),
 
   colors: Joi.array()
     .items(colorSchema)

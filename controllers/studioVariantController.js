@@ -11,9 +11,10 @@ const addStudioVariant = async (req, res) => {
     console.log('img:', uploaded);
 
     const { category, subCategory, printableAreas } = req.body;
-    let { colors } = req.body
+    let { colors, price } = req.body
+    
     colors = colors ? JSON.parse(colors) : []
-
+    price = parseInt(price)
     const normalizedColors = colors.map(c => ({
   name: c.name,
   frontImage: c.frontImage && Object.keys(c.frontImage).length ? c.frontImage : null,
@@ -24,12 +25,13 @@ const addStudioVariant = async (req, res) => {
     const validatedData = validateRequest(createVariantValidation, {
       category,
       subCategory,
+      price,
       colors: normalizedColors,
       printableAreas: printableAreas ? JSON.parse(printableAreas) : {},
     });
     
 
-    // Map uploaded files to colors (optional if using file uploads for images)
+    // Map uploaded files to colors
     if (uploaded && uploaded.length > 0 && validatedData.colors.length > 0) {
       validatedData.colors = validatedData.colors.map((color, index) => {
         const frontFile = uploaded.find(f => f.fieldname === `front_${color.name}`);
@@ -59,9 +61,9 @@ const updateStudioVariant = async (req, res) => {
 
     console.log('variantId', updateData);
     
-    
     // Parse JSON fields if needed
     if (updateData.colors) updateData.colors = JSON.parse(updateData.colors);
+    if(updateData.price) updateData.price = parseInt(updateData.price)
     if (updateData.printableAreas) updateData.printableAreas = JSON.parse(updateData.printableAreas);
 
     // Optionally handle uploaded files

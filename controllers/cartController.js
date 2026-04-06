@@ -82,7 +82,7 @@ const recalculatePayableTotal = (cart) => {
 
 //ADD PRODUCT TO CART
 const addToCart = async (req, res) => {
-  const { productId, quantity = 1, color, size } = req.body;
+  const { productId, quantity = 1, color, size, productType = 'shop' } = req.body;
 
   const userId = req.user?._id;
   const guestId = req.query?.guestId;
@@ -112,6 +112,7 @@ const addToCart = async (req, res) => {
         items: [
           {
             product: productId,
+            productType,
             quantity,
             size,
             color,
@@ -141,6 +142,7 @@ const addToCart = async (req, res) => {
       else {
         cart.items.push({
           product: productId,
+          productType,
           quantity,
           color,
           size,
