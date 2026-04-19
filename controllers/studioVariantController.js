@@ -44,6 +44,11 @@ const addStudioVariant = async (req, res) => {
       });
     }
 
+    if(validatedData.printableAreas.front.width) validatedData.printableAreas.front.realWidthCm = validatedData.printableAreas.front.width/10
+    if(validatedData.printableAreas.front.height) validatedData.printableAreas.front.realHeightCm = validatedData.printableAreas.front.height/10
+    if(validatedData.printableAreas.back.width) validatedData.printableAreas.back.realWidthCm = validatedData.printableAreas.back.width/10
+    if(validatedData.printableAreas.back.height) validatedData.printableAreas.back.realHeightCm = validatedData.printableAreas.back.height/10
+
     const variant = new StudioVariant(validatedData);
     await variant.save();
 
@@ -81,6 +86,12 @@ const updateStudioVariant = async (req, res) => {
         };
       });
     }
+
+    if(updateData.printableAreas.front.width) updateData.printableAreas.front.realWidthCm = updateData.printableAreas.front.width/10
+    if(updateData.printableAreas.front.height) updateData.printableAreas.front.realHeightCm = updateData.printableAreas.front.height/10
+    if(updateData.printableAreas.back.width) updateData.printableAreas.back.realWidthCm = updateData.printableAreas.back.width/10
+    if(updateData.printableAreas.back.height) updateData.printableAreas.back.realHeightCm = updateData.printableAreas.back.height/10
+
     console.log('updateVariant:', updateData);
     
 

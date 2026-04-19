@@ -23,13 +23,16 @@ const { calculateSubTotal, validateCoupon, calculatePayableTotal, calculateGrand
 
       /* ---------------- RESOLVE ITEMS ---------------- */
       checkoutDoc = await checkout.findById(checkoutId)
-        .populate("items.product")
-        .populate("appliedCoupon");
+        .populate(["items.product", "items.variant", "appliedCoupon"])
+        console.log('checkout id:', checkoutId)
+        console.log('checkout doc:', checkoutDoc)
       if (!checkoutDoc || checkoutDoc.items.length === 0) {
         throw new NotFoundError("No items in checkout");
       }
-        items = checkoutDoc.items;
-        appliedCoupon = checkoutDoc.appliedCoupon;
+      console.log('checkout doc::', checkoutDoc)
+      items = checkoutDoc.items;
+      appliedCoupon = checkoutDoc.appliedCoupon;
+
 
       const subTotal = calculateSubTotal(items, appliedCoupon);
 

@@ -13,14 +13,63 @@ const orderSchema = new mongoose.Schema(
         product: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
-          required: true,
+          required: false,
         },
-        quantity: Number,
-        basePrice: Number,
-        finalUnitPrice: Number,
-        itemTotal: Number,
-        color: String,
-        size: String
+        productType: {
+  type: String,
+  enum: ["shop", "studio"],
+  required: true
+},
+    title: String,
+image: String,
+design: {
+  prints: [
+    {
+      imageUrl: String,
+      width: Number,
+      height: Number,
+      left: Number,
+      top: Number,
+      scaleX: Number,
+      scaleY: Number,
+      positionX: Number,
+      positionY: Number,
+      side: String,
+      name: String
+    }
+  ],
+  previewFront: String,
+  previewBack: String
+},
+pricingDetails: {
+  breakdown: [
+    {
+      side: String,
+      tier: String, // A4, A3 etc
+      price: Number,
+      name: String
+    }
+  ],
+  totalPrintPrice: Number
+},
+          variant: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'StudioVariant',
+          required: false
+        },
+        quantity: { type: Number, required: true },
+        finalUnitPrice: { type: Number, required: true },
+        itemTotal: { type: Number, required: true },
+        attributes: {
+          color: {
+            type: String,
+            required: true
+          },
+          size: {
+            type: String,
+            required: true
+          }
+        }
       },
     ],
     shippingFee: Number,

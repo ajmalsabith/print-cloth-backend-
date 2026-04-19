@@ -22,9 +22,17 @@ const fetchOrder = asyncHandler(async(req, res) => {
 
       const filter = {};
 
-      if (userId) filter.user = userId
+      if (!adminId && userId) {
+  filter.user = userId;
+}
 
-      if (search) filter.orderId = { $regex: search, $options: "i" };
+      if (search) {
+  filter.$or = [
+    { orderId: { $regex: search, $options: "i" } },
+    { "deliveryAddress.phone": { $regex: search, $options: "i" } },
+    { "deliveryAddress.fName": { $regex: search, $options: "i" } }
+  ];
+}
       
 
 console.log('status:', filter);
@@ -35,7 +43,7 @@ console.log('status:', filter);
       
       const [orders, totalOrders] = await Promise.all([
         Order.find(filter)
-          .populate("items.product")
+          .populate(["items.product", "items.variant"])
           .sort({ createdAt: -1 })
           .skip(skipValue)
           .limit(limit)
@@ -64,7 +72,7 @@ console.log('status:', filter);
         console.log('orderId:', orderId);
         
       const order = await Order.findOne({ _id: orderId }).populate(
-        "items.product"
+        ["items.product", "items.variant"]
       );
       sendSuccess(res, 'Order fetched successfully', {order}, 200);
     } catch (error) {

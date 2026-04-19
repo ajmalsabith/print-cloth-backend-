@@ -18,20 +18,72 @@ const CheckoutSchema = mongoose.Schema({
       product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
-        required: true
+        required: false
       },
+        variant: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'StudioVariant',
+        required: false
+      },
+      productType: {
+        type: String,
+        default: 'shop',
+        enum: ['shop', 'studio'],
+        required: true
+        },
       quantity: {
         type: Number,
         required: true
       },
-      size: {
+      attributes: {
+        size: {
         type: String,
         required: true
       },
       color: {
         type: String,
         required: true
+      }
       },
+       pricingDetails: {
+        basePrice: Number,
+        totalPrintPrice: Number,
+        printCount: Number,
+        breakdown: [
+          {
+            side: String,
+            area: Number,
+            tier: String,
+            price: Number,
+            name: String
+          }
+        ]
+      },
+      design: {
+  prints: [
+    {
+      imageUrl: String,
+      width: Number,
+      height: Number,
+      left: Number,
+      top: Number,
+      scaleX: Number,
+      scaleY: Number,
+      positionX: Number,
+      positionY: Number,
+      widthCm: Number,  //for printing purpose in cm
+      heightCm: Number,
+      side: {
+        type: String,
+        enum: ["front", "back"]
+      },
+      name: String
+    }
+  ],
+  previewFront: String,
+  previewBack: String
+}
+      ,
       finalUnitPrice: {
         type: Number,
         required: true

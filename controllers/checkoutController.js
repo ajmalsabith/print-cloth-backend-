@@ -5,11 +5,13 @@ const config = require("../config/config");
 const Cart = require("../models/Cart");
 const Coupon = require("../models/Coupon")
 const Product = require("../models/product")
-const Checkout = require("../models/checkout")
+const Checkout = require("../models/checkout");
+const logger = require("../utils/logger");
 
 
 
 const validateCoupon = async(code, checkoutTotal, checkoutItems) => {
+
 
     try {
       if (!code || !checkoutTotal)
@@ -125,9 +127,6 @@ const fetchCheckout = async(req, res, next) => {
   try {
     const { mode='cart', buyNowItems=[], paymentMethod='razorpay' } = req.body
 
-  console.log('req.body', req.body);
-  
-
   const userId = req.user._id
   let items = []
   let cartId
@@ -135,6 +134,7 @@ const fetchCheckout = async(req, res, next) => {
   if (mode === 'cart') {
     const cartData = await Cart.findOne({user: userId})
     if (!cartData || cartData.items.length === 0 ) throw new NotFoundError('Cart is empty')
+      
     items = cartData.items
     cartId = cartData._id
   }
@@ -163,8 +163,6 @@ const fetchCheckout = async(req, res, next) => {
     finalUnitPrice,
     itemTotal
   }];
-
-  console.log('items::', items);
   
 }
   console.log(' checkout items:', items);

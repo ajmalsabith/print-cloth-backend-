@@ -26,14 +26,18 @@ const StudioBaseVariantSchema = new mongoose.Schema({
       x: Number, //Horizontal starting point of the print area 
       y: Number, //Vertical starting point of the print area
       width: Number, //print area width
-      height: Number //print area height
+      height: Number, //print area height
+      realWidthCm: Number, //used for price calculation, needs in cm
+      realHeightCm: Number 
     },
 
     back:{
       x: Number,
       y: Number,
       width: Number,
-      height: Number
+      height: Number,
+      realWidthCm: Number,
+      realHeightCm: Number 
     }
   }
 })
