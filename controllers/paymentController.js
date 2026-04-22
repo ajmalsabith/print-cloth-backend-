@@ -133,6 +133,201 @@ const { calculateSubTotal, validateCoupon, calculatePayableTotal, calculateGrand
   }
   })
 
+  //CREATE RAZORPAY ORDER
+const createRazorpayOrder = asyncHandler(async (req, res) => {
+  try {
+    const { checkoutId } = req.body;
+    const userId = req.user._id;
+
+    let items = [];
+    let appliedCoupon = null;
+    let checkoutDoc = null;
+
+    /* ---------------- RESOLVE ITEMS ---------------- */
+    checkoutDoc = await checkout.findById(checkoutId)
+      .populate(["items.product", "items.variant", "appliedCoupon"]);
+
+    if (!checkoutDoc || checkoutDoc.items.length === 0) {
+      throw new NotFoundError("No items in checkout");
+    }
+
+    items = checkoutDoc.items;
+    appliedCoupon = checkoutDoc.appliedCoupon;
+
+    /* ---------------- CALCULATE TOTALS ---------------- */
+    const subTotal = calculateSubTotal(items, appliedCoupon);
+
+    let discountTotal = 0;
+
+    /* ---------------- COUPON VALIDATION ---------------- */
+    if (appliedCoupon?.couponCode) {
+      const result = await validateCoupon(
+        appliedCoupon.couponCode,
+        subTotal,
+        items
+      );
+      discountTotal = result.discount;
+    }
+
+    const payableTotal = calculatePayableTotal(subTotal, discountTotal);
+
+    const grandTotal = calculateGrandTotal(
+      payableTotal,
+      checkoutDoc.paymentMethod
+    );
+
+    /* ---------------- CREATE RAZORPAY ORDER ---------------- */
+    const razorpayOrder = await razorpay.orders.create({
+      amount: grandTotal * 100, // paise
+      currency: "INR",
+      receipt: `rcpt_${Date.now()}`,
+    });
+
+    /* ---------------- RESPONSE ---------------- */
+    sendSuccess(res, "Razorpay order created", {
+      razorpayOrderId: razorpayOrder.id,
+      amount: grandTotal,
+      currency: "INR",
+      checkoutId, // important for verification step
+    });
+
+  } catch (error) {
+    console.error("create razorpay order error:", error);
+    throw error;
+  }
+});
+
+// RAZORPAY VERIFICATION AFTER PAYMENT
+const verifyRazorpayOrder = async(userId, data) => {
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      checkoutId,
+      deliveryAddress,
+    } = data;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      throw new NotFoundError("Missing Razorpay details");
+    }
+
+    /* ---------------- VERIFY SIGNATURE ---------------- */
+    const expectedSignature = crypto
+      .createHmac("sha256", config.RAZORPAY.SECRET_KEY)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
+
+    if (expectedSignature !== razorpay_signature) {
+      throw new ValidationError("Payment verification failed");
+    }
+
+    /* ---------------- FETCH CHECKOUT ---------------- */
+    const checkoutDoc = await checkout.findById(checkoutId)
+      .populate(["items.product", "items.variant", "appliedCoupon"]);
+
+    if (!checkoutDoc || checkoutDoc.items.length === 0) {
+      throw new NotFoundError("No items in checkout");
+    }
+
+    const items = checkoutDoc.items;
+    const appliedCoupon = checkoutDoc.appliedCoupon;
+
+    /* ---------------- CALCULATE TOTALS ---------------- */
+    const subTotal = calculateSubTotal(items, appliedCoupon);
+
+    let discountTotal = 0;
+
+    if (appliedCoupon?.couponCode) {
+      const result = await validateCoupon(
+        appliedCoupon.couponCode,
+        subTotal,
+        items
+      );
+      discountTotal = result.discount;
+    }
+
+    const payableTotal = calculatePayableTotal(subTotal, discountTotal);
+
+    const grandTotal = calculateGrandTotal(
+      payableTotal,
+      checkoutDoc.paymentMethod
+    );
+
+    /* ---------------- ADDRESS ---------------- */
+    const orderAddress = {
+      fName: deliveryAddress.fName,
+      lName: deliveryAddress.lName,
+      phone: deliveryAddress.phone,
+      streetAddress: deliveryAddress.streetAddress,
+      city: deliveryAddress.city,
+      state: deliveryAddress.state,
+      zipcode: deliveryAddress.zipcode,
+      label: deliveryAddress.label,
+    };
+
+    /* ---------------- STOCK UPDATE ---------------- */
+    for (const item of items) {
+      await Product.updateOne(
+        { _id: item.product._id },
+        { $inc: { stock: -item.quantity } }
+      );
+    }
+
+    /* ---------------- ORDER ID ---------------- */
+    const idFormat = Array.from({ length: 4 }, () =>
+      crypto
+        .getRandomValues(new Uint16Array(1))[0]
+        .toString(16)
+        .padStart(4, "0")
+    ).join("-");
+
+    /* ---------------- CREATE ORDER ---------------- */
+    const order = await Order.create({
+      orderId: `ORDER-${idFormat}`,
+      user: userId,
+      items,
+      totalAmount: grandTotal,
+      subTotal,
+      totalDiscount: discountTotal,
+      codFee: 0,
+      shippingFee: calculateShippingFee(payableTotal),
+      paymentMethod: "Razorpay",
+      paymentStatus: config.PAYMENT_STATUS.PAID,
+      paymentInfo: {
+        razorpayOrderId: razorpay_order_id,
+        razorpay_payment_id,
+        razorpaySignature: razorpay_signature,
+      },
+      deliveryAddress: orderAddress,
+      paidAt: Date.now(),
+    });
+
+    /* ---------------- CLEAR CART ---------------- */
+    if (checkoutDoc.sourceType === "cart") {
+      const cartDoc = await Cart.findById(checkoutDoc.sourceId);
+      if (cartDoc) {
+        cartDoc.items = [];
+        await cartDoc.save();
+      }
+    }
+
+    /* ---------------- CLEANUP ---------------- */
+    await checkout.findByIdAndDelete(checkoutId);
+
+    return {
+      success: true,
+      orderId: order.orderId,
+    };
+
+  } catch (error) {
+    logger.error("verify razorpay error:", error.message);
+    throw error;
+  }
+}
+
   module.exports = {
-    createOrder
+    createOrder,
+    createRazorpayOrder,
+    verifyRazorpayOrder
   }
