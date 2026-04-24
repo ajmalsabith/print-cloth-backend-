@@ -872,9 +872,9 @@ const mergeCart = async (req, res) => {
 
     // await userCart.populate('items.product')
 
-    userCart = transformCart(userCart)
+    cart = transformCart(userCart)
 
-    sendSuccess(res, "Cart merged successfully", { cart: userCart }, 200);
+    sendSuccess(res, "Cart merged successfully", { cart }, 200);
   } catch (error) {
     console.error("Merge Cart error:", error);
     throw error;

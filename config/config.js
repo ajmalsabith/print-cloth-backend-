@@ -72,7 +72,14 @@ module.exports = {
     REFUND_INITIATED: "REFUND_INITIATED",
     REFUNDED: "REFUNDED",
   },
+
+    RAZORPAY: {
+    API_KEY: process.env.RAZORPAY_API_KEY,
+    SECRET_KEY: process.env.RAZORPAY_KEY_SECRET,
+  },
   
 };
+
+
 
 
