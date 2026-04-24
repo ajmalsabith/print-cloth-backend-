@@ -888,4 +888,6 @@ module.exports = {
   removeFromCart,
   updateSize,
   mergeCart,
+  normalizeDesign,
+  calculateStudioPrice
 };

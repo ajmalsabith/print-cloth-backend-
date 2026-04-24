@@ -7,6 +7,8 @@ const Coupon = require("../models/Coupon")
 const Product = require("../models/product")
 const Checkout = require("../models/checkout");
 const logger = require("../utils/logger");
+const StudioBaseVariant = require("../models/StudioBaseVariant");
+const { normalizeDesign, calculateStudioPrice } = require("./cartController");
 
 
 
@@ -140,30 +142,65 @@ const fetchCheckout = async(req, res, next) => {
   }
   
   
- if (mode === 'buyNow') {
-  console.log('in buy now');
-  
+ if (mode === 'buyNow') if (mode === 'buyNow') {
   if (!buyNowItems) {
     throw new NotFoundError('Buy now items required');
   }
 
-  const foundProduct = await Product.findById(buyNowItems.product);
+  let basePrice = 0;
+  let finalUnitPrice = 0;
+  let pricingDetails = null;
+  let designData = null;
 
-  if (!foundProduct) {
-    throw new NotFoundError('Product not found');
+  if (buyNowItems.productType === "shop") {
+    const product = await Product.findById(buyNowItems.product);
+    if (!product) throw new NotFoundError("Product not found");
+
+    basePrice = product.basePrice;
+    finalUnitPrice = basePrice;
   }
 
-  const finalUnitPrice = foundProduct.basePrice;
+  if (buyNowItems.productType === "studio") {
+    const variant = await StudioBaseVariant.findById(buyNowItems.variantId);
+    if (!variant) throw new NotFoundError("Variant not found");
+
+    // 🔥 SAME AS CART
+    designData = normalizeDesign(
+      buyNowItems.elements,
+      buyNowItems.previewImages
+    );
+
+    const result = calculateStudioPrice(
+      variant,
+      buyNowItems.elements
+    );
+
+    basePrice = result.basePrice;
+    finalUnitPrice = result.finalUnitPrice;
+    pricingDetails = result;
+  }
+
   const itemTotal = finalUnitPrice * buyNowItems.quantity;
 
-  console.log('buy now ', buyNowItems);
-  
   items = [{
-    ...buyNowItems,
+    product: buyNowItems.product || null,
+    variant: buyNowItems.variantId || null,
+    productType: buyNowItems.productType,
+    quantity: buyNowItems.quantity,
+    attributes: {
+      color: buyNowItems.color,
+      size: buyNowItems.size
+    },
+    basePrice,
     finalUnitPrice,
-    itemTotal
+    itemTotal,
+
+    ...(buyNowItems.productType === "studio" && {
+      design: designData,
+      pricingDetails,
+      designHash: JSON.stringify(buyNowItems.elements)
+    })
   }];
-  
 }
   console.log(' checkout items:', items);
 
@@ -178,12 +215,15 @@ const fetchCheckout = async(req, res, next) => {
     const subTotal = calculateSubTotal(items)
   const payableTotal = calculatePayableTotal(subTotal, checkout?.discountTotal)
   const grandTotal = calculateGrandTotal(payableTotal, paymentMethod)
+  sourceId = mode === 'cart' ? cartId : items[0]?.product ?? items[0]?.variant
+  console.log('sourceId', sourceId)
+
 
   if (!checkout) {
     checkout = await Checkout.create({
       user: userId,
       sourceType: mode,
-      sourceId: mode === 'cart' ? cartId : items[0].product,
+      sourceId,
       items,
       subTotal,
       payableTotal: subTotal,
