@@ -75,11 +75,12 @@ function transformCart(cart) {
           finalUnitPrice: item.finalUnitPrice,
           itemTotal: item.itemTotal,
           attributes: item.attributes,
-          variant: {                          // expose for size editor
-      _id: item.variant._id,
-      sizes: item.variant.sizes,
+          variant: item.variant,
+        design: {
+      prints: item.design?.prints || [],
+      previewFront: item.design?.previewFront,
+      previewBack: item.design?.previewBack,
     },
-
           designSummary: {
             printCount: item.design?.prints?.length || 0,
 
@@ -124,9 +125,9 @@ async function fetchCart(req, res) {
     },
   });
 }
-console.log('transformed cart:', cart.items)
+// console.log('transformed cart:', cart.items)
     const transformedCart = transformCart(cart)
-    // console.log('transformed cart:', transformedCart.items)
+    console.log('transformed cart:', transformedCart.items)
     sendSuccess(res, "Cart fetch successful", { cart: transformedCart }, 200);
   } catch (error) {
     throw error;
@@ -146,44 +147,10 @@ const recalculateSubTotal = (cart) => {
   )
 };
 
-// //CALCULATE SHIPPING FEES
-// static calculateShippingFee = (cart) => {
-//   const estimatedShippingFee = cart.payableTotal > FREE_SHIPPING_THRESHOLD ? DELIVERY_FEE : 0
-// }
-
 //CALCULATE GRAND TOTAL-AFTER DISCOUNT
 const recalculatePayableTotal = (cart) => {
   return cart.items.reduce((acc, item) => acc + item.itemTotal, 0);
 };
-
-//   const revalidateAppliedCoupon = async (cart, warnings = []) => {
-//     if (!cart.appliedCoupon) {
-//       cart.discountTotal = 0;
-//       cart.payableTotal = cart.subTotal;
-//       return;
-//     }
-
-//     if (cart.appliedCoupon) {
-//       try {
-//         const { discount, finalAmount, coupon } = await CouponService.validateCoupon(
-//           cart.appliedCoupon.code,
-//           cart.subTotal,
-//           cart.items
-//         );
-//         cart.discountTotal = discount;
-
-//         cart.appliedCoupon = coupon
-
-//         cart.payableTotal = finalAmount;
-//       } catch (error) {
-//         //invalid coupon
-//         cart.appliedCoupon = null;
-//         cart.discountTotal = 0;
-//         cart.payableTotal = cart.subTotal;
-//         warnings.push({ message: "Coupon removed: " + error.message });
-//       }
-//     }
-//   };
 
 const PRINT_PRICING = {
   small: { maxArea: 60, price: 30 },

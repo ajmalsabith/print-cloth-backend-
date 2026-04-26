@@ -161,7 +161,7 @@ const downloadInvoice = async (req, res) => {
     let rowY = tableTop + 25;
 
     order.items.forEach((item) => {
-      doc.text(item.product.name, itemStartX, rowY);
+      doc.text(item?.product?.name || 'Custom Design', itemStartX, rowY);
       doc.text(item.quantity.toString(), qtyX, rowY);
       doc.text(`Rs. ${item.finalUnitPrice}`, priceX, rowY);
       doc.text(`Rs. ${item.itemTotal}`, totalX, rowY);
