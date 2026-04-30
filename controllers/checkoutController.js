@@ -154,6 +154,7 @@ const fetchCheckout = async(req, res, next) => {
 
   if (buyNowItems.productType === "shop") {
     const product = await Product.findById(buyNowItems.product);
+    console.log('product in buynow:', product)
     if (!product) throw new NotFoundError("Product not found");
 
     basePrice = product.basePrice;
@@ -164,7 +165,7 @@ const fetchCheckout = async(req, res, next) => {
     const variant = await StudioBaseVariant.findById(buyNowItems.variantId);
     if (!variant) throw new NotFoundError("Variant not found");
 
-    // 🔥 SAME AS CART
+    // SAME AS CART
     designData = normalizeDesign(
       buyNowItems.elements,
       buyNowItems.previewImages
@@ -212,7 +213,7 @@ const fetchCheckout = async(req, res, next) => {
     user: userId,
   })?.populate('appliedCoupon')
   
-    const subTotal = calculateSubTotal(items)
+  const subTotal = calculateSubTotal(items)
   const payableTotal = calculatePayableTotal(subTotal, checkout?.discountTotal)
   const grandTotal = calculateGrandTotal(payableTotal, paymentMethod)
   sourceId = mode === 'cart' ? cartId : items[0]?.product ?? items[0]?.variant

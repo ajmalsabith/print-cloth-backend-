@@ -9,7 +9,7 @@ class AuthService {
     try {
       const existingUser = await User.findByEmail(userData.email);
       if (existingUser) {
-        throw new ValidationError('User with this email already exists');
+        throw new AuthenticationError('User with this email already exists');
       }
 
       const user = new User(userData);
