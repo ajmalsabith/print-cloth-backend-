@@ -38,7 +38,7 @@ const errorHandler = (err, req, res, next) => {
     logger.error(errors)
     console.log('error in val error', error);
     
-    return sendError(res, error.name, error.message, 400, errors);
+    return sendError(res, error.name, error?.errors[0]?.message, 400, errors);
   }
 
   if (error.name === 'NotFoundError') {
@@ -46,6 +46,7 @@ const errorHandler = (err, req, res, next) => {
   }
 
   if (error.name === 'AuthenticationError') {
+    console.log('auth error:', error.name, error.message, error)
     return sendError(res, error.name ,error.message, 401);
   }
   

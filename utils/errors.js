@@ -135,7 +135,7 @@ console.log('error in formatter', error);
     }
 
     if (error.name === 'AuthenticationError') {
-      return 'Invalid credentials';
+      return error?.message || 'Invalid credentials';
     }
 
     if (error.name === 'TokenExpiredError') {

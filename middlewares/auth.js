@@ -9,7 +9,7 @@ const authenticateUser = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return sendError(res, 'authenticationError','Access token required', 401);
+      return sendError(res, 'authenticationError','Please login to continue', 401);
     }
 
     const token = authHeader.substring(7);
@@ -70,14 +70,14 @@ const authenticateAdmin = async (req, res, next) => {
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       logger.warn('Admin auth: Missing or invalid authorization header', { authHeader });
-      return sendError(res, 'Access token required', 401);
+      return sendError(res, 'Please login to continue', 401);
     }
 
     const token = authHeader.substring(7); 
     
     if (!token) {
       logger.warn('Admin auth: Empty token after Bearer prefix');
-      return sendError(res, 'Access token required', 401);
+      return sendError(res, 'Please login to continue', 401);
     }
 
     const decoded = verifyAdminToken(token);

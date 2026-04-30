@@ -50,7 +50,7 @@ class AuthService {
 
       const isPasswordValid = await user.comparePassword(password);
       if (!isPasswordValid) {
-        throw new Error('Invalid email or password');
+        throw new AuthenticationError('Invalid email or password');
       }
 
       user.lastLogin = new Date();
