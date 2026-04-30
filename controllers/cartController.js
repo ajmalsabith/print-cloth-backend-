@@ -785,10 +785,8 @@ const mergeCart = async (req, res) => {
       return res.status(400).json({ message: "Invalid merge request" });
     }
 
-    const userCart = await Cart.findOne({ user: userId }).populate(
-      "items.product",
-    );
-    const guestCart = await Cart.findOne({ guestId }).populate("items.product");
+    const userCart = await Cart.findOne({ user: userId }).populate(["items.product", "items.variant"])
+    const guestCart = await Cart.findOne({ guestId }).populate(["items.product", "items.variant"])
     const guestEmpty = !guestCart || guestCart.items.length === 0;
     const userEmpty = !userCart || userCart.items.length === 0;
 
@@ -811,22 +809,45 @@ const mergeCart = async (req, res) => {
     }
 
     // Merge items
-    guestCart.items.forEach((guestItem) => {
-      const existingItem = userCart.items.find(
-        (userItem) =>
-          userItem.product.toString() === guestItem.product.toString() &&
-          userItem.size === guestItem.size &&
-          userItem.color === guestItem.color,
-      );
+    // Merge items
+guestCart.items.forEach((guestItem) => {
+  const existingItem = userCart.items.find((userItem) => {
 
-      if (existingItem) {
-        existingItem.quantity += guestItem.quantity;
-        existingItem.itemTotal =
-          existingItem.quantity * existingItem.finalUnitPrice;
-      } else {
-        userCart.items.push(guestItem);
-      }
+    // ── SHOP PRODUCT MATCH ─────────────────────────
+    if (guestItem.productType === "shop") {
+      return (
+        userItem.product?.toString() === guestItem.product?.toString() &&
+        userItem.attributes?.color === guestItem.attributes?.color &&
+        userItem.attributes?.size === guestItem.attributes?.size
+      );
+    }
+
+    // ── STUDIO PRODUCT MATCH ───────────────────────
+    if (guestItem.productType === "studio") {
+      return (
+        userItem.variant?.toString() === guestItem.variant?.toString() &&
+        userItem.designHash === guestItem.designHash
+      );
+    }
+
+    return false;
+  });
+
+  // ── IF MATCH FOUND → MERGE QUANTITY ─────────────
+  if (existingItem) {
+    existingItem.quantity += guestItem.quantity;
+
+    existingItem.itemTotal =
+      existingItem.quantity * existingItem.finalUnitPrice;
+  }
+
+  // ── ELSE → PUSH NEW ITEM ────────────────────────
+  else {
+    userCart.items.push({
+      ...guestItem.toObject(), // preserve design, pricingDetails
     });
+  }
+});
 
     userCart.subTotal = recalculateSubTotal(userCart);
     userCart.totalQuantity = recalculateTotalQuantity(userCart);
