@@ -14,6 +14,11 @@ const StudioBaseVariantSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  sizes: {
+  type: [String],
+  default: ["S", "M", "L", "XL"],
+  required: true
+},
     colors: [
     {
       name: String,

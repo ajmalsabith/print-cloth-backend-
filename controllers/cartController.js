@@ -366,7 +366,7 @@ if (itemIndex > -1) {
     //   // await cart.populate("items.product").populate( "appliedCoupon")
     await cart.populate(["items.variant", "items.product"]);
 
-    // console.log('cart variant:', cart.items);
+    console.log('cart after populate:', cart);
 const formattedCart = transformCart(cart);
 
 sendSuccess(res, "Product added to cart", { cart: formattedCart }, 200);

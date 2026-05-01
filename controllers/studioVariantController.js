@@ -12,7 +12,9 @@ const addStudioVariant = async (req, res) => {
 
     const { category, subCategory, printableAreas } = req.body;
     let { colors, price } = req.body
-    
+
+    const sizes = JSON.parse(req.body.sizes);
+    console.log('sizes:', sizes)
     colors = colors ? JSON.parse(colors) : []
     price = parseInt(price)
     const normalizedColors = colors.map(c => ({
@@ -26,6 +28,7 @@ const addStudioVariant = async (req, res) => {
       category,
       subCategory,
       price,
+      sizes,
       colors: normalizedColors,
       printableAreas: printableAreas ? JSON.parse(printableAreas) : {},
     });

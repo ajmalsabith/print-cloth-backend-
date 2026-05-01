@@ -181,6 +181,15 @@ const createVariantValidation = Joi.object({
   
   price: Joi.number().required(),
 
+  sizes: Joi.array()
+    .items(
+      Joi.string()
+        .valid("XS", "S", "M", "L", "XL", "XXL")
+    )
+    .min(1)
+    .unique()
+    .required(),
+
   colors: Joi.array()
     .items(colorSchema)
     .min(1)
@@ -203,6 +212,15 @@ const updateVariantValidation = Joi.object({
   subCategory: Joi.string()
     .valid("regular", "hoodie", "polo", "crop")
     .optional(),
+
+  sizes: Joi.array()
+    .items(
+      Joi.string()
+        .valid("XS", "S", "M", "L", "XL", "XXL")
+    )
+    .min(1)
+    .unique()
+    .required(),
 
   colors: Joi.array()
     .items(colorSchema)
