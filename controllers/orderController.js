@@ -1,4 +1,5 @@
 const Order = require("../models/Order");
+const { NotFoundError } = require("../utils/errors");
 const { asyncHandler, sendSuccess } = require("./BaseController");
 const PDFDocument = require("pdfkit")
 
@@ -66,19 +67,15 @@ console.log('status:', filter);
 })
 
  //FETCH ORDER BY ID
-  const fetchOrderById = async(req, res) => {
-    try {
-        const { orderId } = req.params
-        console.log('orderId:', orderId);
-        
-      const order = await Order.findOne({ _id: orderId }).populate(
-        ["items.product", "items.variant"]
-      );
-      sendSuccess(res, 'Order fetched successfully', {order}, 200);
-    } catch (error) {
-      throw error;
-    }
-  }
+  const fetchOrderById = asyncHandler(async(req, res) => {
+  const { orderId } = req.params
+  const order = await Order.findOne({ _id: orderId }).populate(
+    ["items.product", "items.variant"]
+  );
+  if (!order) throw new NotFoundError("Order not found", 404);
+  sendSuccess(res, 'Order fetched successfully', { order }, 200);
+})
+
 
 //UPDATE ORDER
 const updateOrderStatus = asyncHandler(async(req, res) => {

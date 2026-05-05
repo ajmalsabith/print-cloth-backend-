@@ -160,80 +160,59 @@ const colorSchema = Joi.object({
   backImage: Joi.string().uri().allow(null, "").optional()
 });
 
-// PRINTABLE AREA OBJECT
+
+// printableAreaSchema
 const printableAreaSchema = Joi.object({
-  x: Joi.number().min(0).required(),
-  y: Joi.number().min(0).required(),
-  width: Joi.number().min(1).required(),
-  height: Joi.number().min(1).required()
-})
+  // Canvas pixel values
+  x:      Joi.number().required(),
+  y:      Joi.number().required(),
+  width:  Joi.number().required(),
+  height: Joi.number().required(),
 
-// CREATE STUDIO VARIANT
+  // Derived cm values
+  widthCm:               Joi.number().optional(),
+  heightCm:              Joi.number().optional(),
+  offsetFromShirtLeftCm: Joi.number().optional(),
+  offsetFromShirtTopCm:  Joi.number().optional(),
+});
+
+// Create Variant Schema Validation
 const createVariantValidation = Joi.object({
-
-  category: Joi.string()
-    .valid("men", "women", "kids")
-    .required(),
-
-  subCategory: Joi.string()
-    .valid("regular", "over-sized", "hoodie", "polo", "crop")
-    .required(),
-  
-  price: Joi.number().required(),
+  category:    Joi.string().valid("men", "women", "kids").required(),
+  subCategory: Joi.string().valid("regular", "over-sized", "hoodie", "polo", "crop").required(),
+  price:       Joi.number().required(),
+  shirtWidthCm: Joi.number().min(20).max(100).required(),
 
   sizes: Joi.array()
-    .items(
-      Joi.string()
-        .valid("XS", "S", "M", "L", "XL", "XXL")
-    )
-    .min(1)
-    .unique()
-    .required(),
+    .items(Joi.string().valid("XS", "S", "M", "L", "XL", "XXL"))
+    .min(1).unique().required(),
 
-  colors: Joi.array()
-    .items(colorSchema)
-    .min(1)
-    .required(),
+  colors: Joi.array().items(colorSchema).min(1).required(),
 
   printableAreas: Joi.object({
     front: printableAreaSchema.required(),
-    back: printableAreaSchema.required()
-  }).required()
+    back:  printableAreaSchema.required(),
+  }).required(),
+});
 
-})
-
-// UPDATE STUDIO VARIANT
+// Update Variant Schema Validation
 const updateVariantValidation = Joi.object({
-
-  category: Joi.string()
-    .valid("men", "women", "kids")
-    .optional(),
-
-  subCategory: Joi.string()
-    .valid("regular", "hoodie", "polo", "crop")
-    .optional(),
+  category:    Joi.string().valid("men", "women", "kids").optional(),
+  subCategory: Joi.string().valid("regular", "over-sized", "hoodie", "polo", "crop").optional(),
+  price:       Joi.number().optional(),
+  shirtWidthCm: Joi.number().min(20).max(100).optional(), // NEW — optional on update
 
   sizes: Joi.array()
-    .items(
-      Joi.string()
-        .valid("XS", "S", "M", "L", "XL", "XXL")
-    )
-    .min(1)
-    .unique()
-    .required(),
+    .items(Joi.string().valid("XS", "S", "M", "L", "XL", "XXL"))
+    .min(1).unique().optional(), // also fixed: was required() on update which is wrong
 
-  colors: Joi.array()
-    .items(colorSchema)
-    .min(1)
-    .optional(),
+  colors: Joi.array().items(colorSchema).min(1).optional(),
 
   printableAreas: Joi.object({
     front: printableAreaSchema,
-    back: printableAreaSchema
-  }).optional()
-
-})
-
+    back:  printableAreaSchema,
+  }).optional(),
+});
 module.exports = {
   registerValidation,
   loginValidation,

@@ -26,41 +26,63 @@ design: {
   prints: [
     {
       imageUrl: String,
+
       width: Number,
       height: Number,
-      left: Number,
-      top: Number,
       scaleX: Number,
       scaleY: Number,
+
       positionX: Number,
       positionY: Number,
+      printTier: { type: String, enum: ["A5", "A4", "A3"] }, 
+
       widthCm: Number,  //for printing purpose in cm
       heightCm: Number,
+      offsetFromZoneLeftCm: Number,
+      offsetFromZoneTopCm:  Number,
+
       side: {
         type: String,
         enum: ["front", "back"]
       },
-      name: String
+      name: String,
+      actualFromShirtLeftCm: Number,
+      actualFromShirtTopCm: Number
     }
   ],
   previewFront: String,
   previewBack: String
 },
 
-          pricingDetails: {
+    pricingDetails: {
         basePrice: Number,
         totalPrintPrice: Number,
         printCount: Number,
         breakdown: [
           {
             side: String,
+            name: String,
+            widthCm:  Number,
+            heightCm: Number,
             area: Number,
             tier: String,
             price: Number,
-            name: String
           }
         ]
       },
+
+      supplierPrintInstructions: [
+  {
+    side:            { type: String, enum: ["front", "back"] },
+    imageUrl:        String,
+    name:            String,
+    printTier:       { type: String, enum: ["A5", "A4", "A3"] },
+    widthCm:         Number,
+    heightCm:        Number,
+    fromShirtLeftCm: Number,
+    fromShirtTopCm:  Number,
+  }
+],
 
       designHash: String,
       image: String,
@@ -79,12 +101,6 @@ design: {
             required: true,
             min: 1,
             default: 1
-        },
-        color: {
-            type: String
-        },
-        size: {
-            type: String
         },
         //selling price when its added to cart-used to calculate subTotal
         basePrice: {

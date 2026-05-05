@@ -142,7 +142,7 @@ const fetchCheckout = async(req, res, next) => {
   }
   
   
- if (mode === 'buyNow') if (mode === 'buyNow') {
+ if (mode === 'buyNow') {
   if (!buyNowItems) {
     throw new NotFoundError('Buy now items required');
   }
@@ -151,6 +151,7 @@ const fetchCheckout = async(req, res, next) => {
   let finalUnitPrice = 0;
   let pricingDetails = null;
   let designData = null;
+  let supplierPrintDetails = null
 
   if (buyNowItems.productType === "shop") {
     const product = await Product.findById(buyNowItems.product);
@@ -166,10 +167,13 @@ const fetchCheckout = async(req, res, next) => {
     if (!variant) throw new NotFoundError("Variant not found");
 
     // SAME AS CART
-    designData = normalizeDesign(
+    const {design, supplierPrintInstructions} = normalizeDesign(
       buyNowItems.elements,
-      buyNowItems.previewImages
+      buyNowItems.previewImages,
+      variant
     );
+    designData = design
+    supplierPrintDetails = supplierPrintInstructions
 
     const result = calculateStudioPrice(
       variant,
@@ -199,6 +203,7 @@ const fetchCheckout = async(req, res, next) => {
     ...(buyNowItems.productType === "studio" && {
       design: designData,
       pricingDetails,
+      supplierPrintInstructions: supplierPrintDetails,
       designHash: JSON.stringify(buyNowItems.elements)
     })
   }];
@@ -216,7 +221,7 @@ const fetchCheckout = async(req, res, next) => {
   const subTotal = calculateSubTotal(items)
   const payableTotal = calculatePayableTotal(subTotal, checkout?.discountTotal)
   const grandTotal = calculateGrandTotal(payableTotal, paymentMethod)
-  sourceId = mode === 'cart' ? cartId : items[0]?.product ?? items[0]?.variant
+  const sourceId = mode === 'cart' ? cartId : items[0]?.product ?? items[0]?.variant
   console.log('sourceId', sourceId)
 
 

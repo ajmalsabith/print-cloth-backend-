@@ -9,25 +9,68 @@ const { sendError } = require("../utils/response");
 const { sendSuccess } = require("./BaseController");
 
 
+const CANVAS_W = 400; // must match frontend and variant controller
+
+// Paper size area thresholds in cm²
+const PRINT_PRICING = {
+  A5: { maxArea: 14.8 * 21,   price: 30  },  // ≤ 310.8 cm²
+  A4: { maxArea: 21   * 29.7, price: 60  },  // ≤ 623.7 cm²
+  A3: { maxArea: Infinity,    price: 100 },  // anything larger
+};
+
+function getPrintTier(widthCm, heightCm) {
+  const area = widthCm * heightCm;
+  if (area <= PRINT_PRICING.A5.maxArea) return "A5";
+  if (area <= PRINT_PRICING.A4.maxArea) return "A4";
+  return "A3";
+}
+
 //NORMALIZE STUDIO PRODUCT DESIGN DETAILS FOR CART
-function normalizeDesign(elements, previewImages) {
-  console.log('elements:', elements)
-  return {
-    prints: elements?.map(p => ({
-      imageUrl: p.imageUrl,
-      width: p.width,
-      height: p.height,
-      left: p.left,
-      top: p.top,
-      scaleX: p.scaleX,
-      scaleY: p.scaleY,
+function normalizeDesign(elements, previewImages, variant) {
+  const prints = elements?.map(p => {
+    const area = p.side === "front"
+      ? variant?.printableAreas?.front
+      : variant?.printableAreas?.back;
+
+    return {
+      imageUrl:  p.imageUrl,
+      name:      p.name || "Custom Design",
+      side:      p.side,
+      width:     p.width,
+      height:    p.height,
+      scaleX:    p.scaleX,
+      scaleY:    p.scaleY,
       positionX: p.positionX,
       positionY: p.positionY,
-      side: p.side,
-      name: p.name || "Custom Design"
-    })) || [],
-    previewFront: previewImages.front || null,
-    previewBack: previewImages.back || null
+      widthCm:   p.widthCm,
+      heightCm:  p.heightCm,
+      printTier: p.printTier,
+      offsetFromZoneLeftCm:  p.offsetFromZoneLeftCm,
+      offsetFromZoneTopCm:   p.offsetFromZoneTopCm,
+      actualFromShirtLeftCm: +((area?.offsetFromShirtLeftCm ?? 0) + (p.offsetFromZoneLeftCm ?? 0)).toFixed(2),
+      actualFromShirtTopCm:  +((area?.offsetFromShirtTopCm  ?? 0) + (p.offsetFromZoneTopCm  ?? 0)).toFixed(2),
+    };
+  }) ?? [];
+
+  // Built once , stored in cart/checkout/order
+  const supplierPrintInstructions = prints.map(p => ({
+    side:            p.side,
+    imageUrl:        p.imageUrl,
+    name:            p.name,
+    printTier:       p.printTier,
+    widthCm:         p.widthCm,
+    heightCm:        p.heightCm,
+    fromShirtLeftCm: p.actualFromShirtLeftCm,
+    fromShirtTopCm:  p.actualFromShirtTopCm,
+  }));
+
+  return {
+    design: {
+      prints,
+      previewFront: previewImages?.front ?? null,
+      previewBack:  previewImages?.back  ?? null,
+    },
+    supplierPrintInstructions,
   };
 }
 
@@ -152,64 +195,53 @@ const recalculatePayableTotal = (cart) => {
   return cart.items.reduce((acc, item) => acc + item.itemTotal, 0);
 };
 
-const PRINT_PRICING = {
-  small: { maxArea: 60, price: 30 },
-  medium: { maxArea: 100, price: 60 },
-  large: { maxArea: Infinity, price: 100 }
-}
-
 //STUDIO PRODUCT PRICE CALCULATION
 function calculateStudioPrice(variant, prints) {
-  let totalPrintPrice = 0
+  let totalPrintPrice = 0;
 
-  const front = variant.printableAreas.front
-  const back = variant.printableAreas.back
+  const pxToCm = variant.shirtWidthCm / CANVAS_W;
 
-  const pxToCmXFront = front.realWidthCm / front.width
-  const pxToCmYFront = front.realHeightCm / front.height
-
-  const pxToCmXBack = back.realWidthCm / back.width
-  const pxToCmYBack = back.realHeightCm / back.height
-
-  const breakdown = []
+  const breakdown = [];
 
   for (const print of prints) {
-    const isFront = print.side === "front"
+    const isFront = print.side === "front";
 
-    const pxToCmX = isFront ? pxToCmXFront : pxToCmXBack
-    const pxToCmY = isFront ? pxToCmYFront : pxToCmYBack
+    //calculate widthCm with fallback if no widthCm on print
+    const widthCm = print.widthCm
+      ?? +(print.width * print.scaleX * pxToCm).toFixed(2);
+ 
+    const heightCm = print.heightCm
+      ?? +(print.height * print.scaleY * pxToCm).toFixed(2);
 
-    const widthCm = print.width * print.scaleX * pxToCmX
-    const heightCm = print.height * print.scaleY * pxToCmY
+    const area = widthCm * heightCm;
 
-    const area = widthCm * heightCm
+    const tier  = print.printTier ?? getPrintTier(widthCm, heightCm);
 
-    let tier = "large"
-    if (area <= PRINT_PRICING.small.maxArea) tier = "small"
-    else if (area <= PRINT_PRICING.medium.maxArea) tier = "medium"
+    const price = PRINT_PRICING[tier].price;
 
-    const price = PRINT_PRICING[tier].price
-
-    totalPrintPrice += price
+    totalPrintPrice += price;
 
     breakdown.push({
       side: print.side,
-      widthCm,
-      heightCm,
-      area,
+      name: print.name || "Custom Print",
+      widthCm:          +widthCm.toFixed(2),
+      heightCm:         +heightCm.toFixed(2),
+      offsetFromZoneLeftCm: print.offsetFromZoneLeftCm ?? null,
+      offsetFromZoneTopCm:  print.offsetFromZoneTopCm  ?? null,
+      area:  +area.toFixed(2),
       tier,
-      price
-    })
+      price,
+    });
   }
 
-  const basePrice = variant.price || 0
+  const basePrice = variant.price || 0;
 
   return {
     basePrice,
     totalPrintPrice,
     finalUnitPrice: basePrice + totalPrintPrice,
-    breakdown
-  }
+    breakdown,
+  };
 }
 
 //ADD TO CART
@@ -235,11 +267,15 @@ const addToCart = async (req, res) => {
     }
 
     let designData = null;
+    let supplierPrintInstructions = null
 
     if(productType === "studio") {
       const variant = await StudioBaseVariant.findById(variantId)
 
-      designData = normalizeDesign(elements, previewImages);
+      const { design, supplierPrintInstructions } = normalizeDesign(elements, previewImages, variant);
+
+      designData = design
+      supplierPrintDetails = supplierPrintInstructions
 
       if (!variant) throw new NotFoundError("Variant not found", 404);
       const result = calculateStudioPrice(variant, elements);
@@ -278,6 +314,7 @@ const addToCart = async (req, res) => {
             ...(productType === "studio" && {
               design: designData,
               pricingDetails,
+              supplierPrintInstructions: supplierPrintDetails,
               designHash: JSON.stringify(elements)
             }),
           },
@@ -348,6 +385,7 @@ if (itemIndex > -1) {
                       ...(productType === "studio" && {
               design: designData,
               pricingDetails,
+              supplierPrintInstructions: supplierPrintDetails,
               designHash: JSON.stringify(elements)
             }),
         });
@@ -367,7 +405,7 @@ if (itemIndex > -1) {
     await cart.populate(["items.variant", "items.product"]);
 
     console.log('cart after populate:', cart);
-const formattedCart = transformCart(cart);
+    const formattedCart = transformCart(cart);
 
 sendSuccess(res, "Product added to cart", { cart: formattedCart }, 200);
 
