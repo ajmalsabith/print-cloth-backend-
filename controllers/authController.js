@@ -43,6 +43,7 @@ class AuthController extends BaseController {
       profileUpdateValidation,
       req.body
     );
+    console.log('data:', req.body)
     const user = await AuthService.updateProfile(req.user._id, validatedData);
     BaseController.logAction("PROFILE_UPDATE", user);
     BaseController.sendSuccess(res, "Profile updated successfully", { user });
