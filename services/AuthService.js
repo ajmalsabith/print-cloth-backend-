@@ -157,6 +157,35 @@ class AuthService {
       throw error;
     }
   }
+
+  static async uploadAvatar(userId, image) {
+    try {
+      const user = await User.findById(userId);
+      
+      console.log('image:', image)
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (!image) {
+        throw new Error('No image file selected!');
+      }
+          const updated = await User.findByIdAndUpdate(
+      userId,
+      { avatar: image.path },
+      { new: true, select: "-password" }
+    );
+
+
+
+
+      return updated
+
+    } catch (error) {
+      logger.error('User validation error:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = AuthService;

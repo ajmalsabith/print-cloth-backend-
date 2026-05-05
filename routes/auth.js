@@ -3,6 +3,7 @@ const AuthController = require('../controllers/authController');
 const { authenticateUser } = require('../middlewares/auth');
 const checkUserStatus = require('../middlewares/checkUserStatus');
 const { limiter } = require('../middlewares/rateLimiter');
+const upload = require('./uploads');
 
 const router = express.Router();
 
@@ -13,5 +14,6 @@ router.get('/me', checkUserStatus, authenticateUser, AuthController.getProfile);
 router.put('/profile', checkUserStatus, authenticateUser, AuthController.updateProfile);
 router.put('/change-password', limiter, checkUserStatus, authenticateUser, AuthController.changePassword);
 router.post('/logout', checkUserStatus, authenticateUser, AuthController.logout);
+router.put("/profile/avatar", authenticateUser, upload.single("image"), AuthController.uploadAvatar);
 
 module.exports = router;

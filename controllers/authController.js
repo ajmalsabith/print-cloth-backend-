@@ -49,6 +49,13 @@ class AuthController extends BaseController {
     BaseController.sendSuccess(res, "Profile updated successfully", { user });
   });
 
+  static uploadAvatar = BaseController.asyncHandler(async (req, res) => {
+    console.log('data:', req.body)
+    const user = await AuthService.uploadAvatar(req.user._id, req.file);
+    BaseController.logAction("PROFILE_UPDATE", user);
+    BaseController.sendSuccess(res, "Profile updated successfully", { user });
+  });
+
   static changePassword = BaseController.asyncHandler(async (req, res) => {
     const validatedData = BaseController.validateRequest(
       passwordChangeValidation,

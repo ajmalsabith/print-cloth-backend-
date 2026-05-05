@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema({
     enum: ['active', 'banned'],
     default: 'active'
   },
+  avatar: { type: String, default: null },
   banReason: {
     type: String,
     default: null
